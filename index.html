@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Web Production | 参考URL1つで営業用ホームページが完成</title>
+  <meta name="description" content="7項目の簡単入力で依頼完了。AIが24時間以内に営業用ホームページの高精度初稿をお届けします。">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Sans+JP:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'Noto Sans JP', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              200: '#c7d2fe',
+              300: '#a5b4fc',
+              400: '#818cf8',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+              800: '#3730a3',
+              900: '#312e81',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', 'Noto Sans JP', sans-serif; }
+    
+    .gradient-hero {
+      background: linear-gradient(135deg, #312e81 0%, #4f46e5 40%, #6366f1 70%, #818cf8 100%);
+    }
+    .gradient-text {
+      background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+    .float-animation {
+      animation: float 6s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-20px); }
+    }
+    .pulse-glow {
+      animation: pulseGlow 2.5s ease-in-out infinite;
+    }
+    @keyframes pulseGlow {
+      0%, 100% { box-shadow: 0 0 20px rgba(99, 102, 241, 0.3); }
+      50% { box-shadow: 0 0 40px rgba(99, 102, 241, 0.6); }
+    }
+    .step-connector::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      right: -2rem;
+      width: 4rem;
+      height: 2px;
+      background: linear-gradient(90deg, #6366f1, transparent);
+    }
+    @media (max-width: 768px) {
+      .step-connector::after { display: none; }
+    }
+    .fade-in {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .fade-in.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .count-up { font-variant-numeric: tabular-nums; }
+    .particle {
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.3);
+      animation: particleFloat linear infinite;
+    }
+    @keyframes particleFloat {
+      0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { transform: translateY(-100vh) rotate(720deg); opacity: 0; }
+    }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-900 antialiased">
+
+  <!-- ========== Navigation ========== -->
+  <nav id="mainNav" class="fixed top-0 w-full z-50 transition-all duration-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16 lg:h-20">
+        <a href="index.html" class="flex items-center gap-2">
+          <div class="w-9 h-9 rounded-xl bg-brand-600 flex items-center justify-center">
+            <i class="fas fa-bolt text-white text-sm"></i>
+          </div>
+          <span class="font-bold text-lg text-white nav-logo-text">AI Web Production</span>
+        </a>
+        <div class="hidden md:flex items-center gap-8">
+          <a href="#how-it-works" class="text-sm text-white/80 hover:text-white transition-colors">仕組み</a>
+          <a href="#features" class="text-sm text-white/80 hover:text-white transition-colors">特長</a>
+          <a href="#pricing" class="text-sm text-white/80 hover:text-white transition-colors">料金</a>
+          <a href="#faq" class="text-sm text-white/80 hover:text-white transition-colors">FAQ</a>
+          <a href="admin.html" class="text-sm text-white/80 hover:text-white transition-colors"><i class="fas fa-lock mr-1"></i>管理画面</a>
+        </div>
+        <div class="flex items-center gap-3">
+          <a href="apply.html" class="hidden sm:inline-flex items-center gap-2 bg-white text-brand-700 font-semibold text-sm px-5 py-2.5 rounded-xl hover:bg-brand-50 transition-all shadow-lg hover:shadow-xl">
+            <i class="fas fa-paper-plane text-xs"></i>無料で申し込む
+          </a>
+          <button id="mobileMenuBtn" class="md:hidden text-white p-2">
+            <i class="fas fa-bars text-xl"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+    <!-- Mobile Menu -->
+    <div id="mobileMenu" class="hidden md:hidden bg-brand-900/95 backdrop-blur-lg border-t border-white/10">
+      <div class="px-4 py-4 space-y-2">
+        <a href="#how-it-works" class="block px-4 py-3 text-white/90 hover:bg-white/10 rounded-lg transition-colors">仕組み</a>
+        <a href="#features" class="block px-4 py-3 text-white/90 hover:bg-white/10 rounded-lg transition-colors">特長</a>
+        <a href="#pricing" class="block px-4 py-3 text-white/90 hover:bg-white/10 rounded-lg transition-colors">料金</a>
+        <a href="#faq" class="block px-4 py-3 text-white/90 hover:bg-white/10 rounded-lg transition-colors">FAQ</a>
+        <a href="admin.html" class="block px-4 py-3 text-white/90 hover:bg-white/10 rounded-lg transition-colors"><i class="fas fa-lock mr-1"></i>管理画面</a>
+        <a href="apply.html" class="block px-4 py-3 bg-white text-brand-700 font-semibold rounded-lg text-center mt-2">無料で申し込む</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ========== Hero Section ========== -->
+  <section class="gradient-hero relative overflow-hidden min-h-screen flex items-center">
+    <!-- Particles -->
+    <div id="particles" class="absolute inset-0 pointer-events-none"></div>
+    <!-- Grid Pattern -->
+    <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.3) 1px, transparent 0); background-size: 40px 40px;"></div>
+    
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-20 lg:pt-40 lg:pb-32">
+      <div class="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+        <!-- Left Content -->
+        <div class="text-center lg:text-left">
+          <div class="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-1.5 mb-6">
+            <span class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
+            <span class="text-white/90 text-sm font-medium">Phase 1 MVP 稼働中</span>
+          </div>
+          <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-tight mb-6">
+            参考URL<span class="text-brand-300">1つ</span>で<br>
+            営業用HPが<br class="hidden sm:block">
+            <span class="relative">
+              <span class="relative z-10">24時間以内</span>
+              <span class="absolute bottom-1 left-0 w-full h-3 bg-brand-400/30 -z-0 rounded"></span>
+            </span>に完成
+          </h1>
+          <p class="text-lg sm:text-xl text-white/80 mb-8 max-w-xl mx-auto lg:mx-0 leading-relaxed">
+            会社名・住所・メールアドレス・参考URLの<br class="hidden sm:block">
+            <strong class="text-white">わずか7項目</strong>を入力するだけ。<br>
+            AIが自動で高精度な初稿を制作します。
+          </p>
+          <div class="flex flex-col sm:flex-row items-center gap-4 justify-center lg:justify-start">
+            <a href="apply.html" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-white text-brand-700 font-bold text-lg px-8 py-4 rounded-2xl hover:bg-brand-50 transition-all shadow-xl hover:shadow-2xl hover:scale-105 pulse-glow">
+              <i class="fas fa-paper-plane"></i>
+              無料で申し込む
+            </a>
+            <a href="#how-it-works" class="inline-flex items-center gap-2 text-white/90 hover:text-white font-medium transition-colors">
+              <i class="fas fa-play-circle text-xl"></i>
+              仕組みを見る
+            </a>
+          </div>
+          <!-- Stats -->
+          <div class="grid grid-cols-3 gap-6 mt-12 pt-8 border-t border-white/10">
+            <div class="text-center lg:text-left">
+              <div class="text-3xl font-bold text-white count-up" data-target="5">0</div>
+              <div class="text-sm text-white/60 mt-1">分で入力完了</div>
+            </div>
+            <div class="text-center lg:text-left">
+              <div class="text-3xl font-bold text-white count-up" data-target="24">0</div>
+              <div class="text-sm text-white/60 mt-1">時間以内に初稿</div>
+            </div>
+            <div class="text-center lg:text-left">
+              <div class="text-3xl font-bold text-white count-up" data-target="88">0</div>
+              <div class="text-sm text-white/60 mt-1">点以上の品質保証</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Visual -->
+        <div class="hidden lg:block relative">
+          <div class="float-animation">
+            <!-- Browser Mockup -->
+            <div class="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 shadow-2xl overflow-hidden">
+              <div class="flex items-center gap-2 px-4 py-3 bg-black/20 border-b border-white/10">
+                <div class="flex gap-1.5">
+                  <div class="w-3 h-3 rounded-full bg-red-400"></div>
+                  <div class="w-3 h-3 rounded-full bg-yellow-400"></div>
+                  <div class="w-3 h-3 rounded-full bg-green-400"></div>
+                </div>
+                <div class="flex-1 ml-2 bg-white/10 rounded-lg px-3 py-1 text-xs text-white/50">your-company.com</div>
+              </div>
+              <div class="p-6 space-y-4">
+                <div class="h-8 bg-white/10 rounded-lg w-3/4"></div>
+                <div class="h-4 bg-white/10 rounded w-full"></div>
+                <div class="h-4 bg-white/10 rounded w-5/6"></div>
+                <div class="grid grid-cols-3 gap-3 mt-6">
+                  <div class="h-24 bg-white/10 rounded-lg"></div>
+                  <div class="h-24 bg-white/10 rounded-lg"></div>
+                  <div class="h-24 bg-white/10 rounded-lg"></div>
+                </div>
+                <div class="h-10 bg-brand-400/40 rounded-xl w-48 mx-auto mt-4"></div>
+              </div>
+            </div>
+          </div>
+          <!-- Floating Badge -->
+          <div class="absolute -bottom-4 -left-4 glass-card rounded-xl px-4 py-3 shadow-xl">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 bg-emerald-500/20 rounded-full flex items-center justify-center">
+                <i class="fas fa-check text-emerald-400"></i>
+              </div>
+              <div>
+                <div class="text-white font-semibold text-sm">品質スコア</div>
+                <div class="text-emerald-400 font-bold text-lg">92 / 100</div>
+              </div>
+            </div>
+          </div>
+          <!-- Floating Badge 2 -->
+          <div class="absolute -top-4 -right-4 glass-card rounded-xl px-4 py-3 shadow-xl">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 bg-blue-500/20 rounded-full flex items-center justify-center">
+                <i class="fas fa-robot text-blue-400"></i>
+              </div>
+              <div>
+                <div class="text-white font-semibold text-sm">AI分析</div>
+                <div class="text-blue-400 font-bold text-sm">自動実行中...</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Wave Divider -->
+    <div class="absolute bottom-0 left-0 w-full">
+      <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M0 120L60 105C120 90 240 60 360 45C480 30 600 30 720 37.5C840 45 960 60 1080 67.5C1200 75 1320 75 1380 75L1440 75V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0Z" fill="#f9fafb"/>
+      </svg>
+    </div>
+  </section>
+
+  <!-- ========== How It Works ========== -->
+  <section id="how-it-works" class="py-20 lg:py-28 bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-16 fade-in">
+        <div class="inline-flex items-center gap-2 bg-brand-50 text-brand-700 rounded-full px-4 py-1.5 mb-4 text-sm font-semibold">
+          <i class="fas fa-cog"></i> 仕組み
+        </div>
+        <h2 class="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-4">
+          <span class="gradient-text">4ステップ</span>で完成
+        </h2>
+        <p class="text-lg text-gray-600 max-w-2xl mx-auto">複雑なヒアリングは不要。7項目を入力するだけで、AIが最適なホームページを制作します。</p>
+      </div>
+
+      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <!-- Step 1 -->
+        <div class="fade-in relative">
+          <div class="relative bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all border border-gray-100 group hover:-translate-y-1 step-connector">
+            <div class="absolute -top-4 -left-2 w-10 h-10 bg-brand-600 text-white rounded-xl flex items-center justify-center font-bold text-sm shadow-lg">1</div>
+            <div class="w-14 h-14 bg-brand-50 rounded-2xl flex items-center justify-center mb-5 group-hover:bg-brand-100 transition-colors">
+              <i class="fas fa-keyboard text-2xl text-brand-600"></i>
+            </div>
+            <h3 class="text-lg font-bold text-gray-900 mb-2">7項目を入力</h3>
+            <p class="text-gray-600 text-sm leading-relaxed">会社名・住所・メール・参考URL + 業種・サービス・サイト目的を入力。約<strong>3〜5分</strong>で完了。</p>
+            <div class="mt-4 text-xs text-brand-600 font-semibold">所要時間: 3〜5分</div>
+          </div>
+        </div>
+        <!-- Step 2 -->
+        <div class="fade-in relative" style="transition-delay: 0.1s;">
+          <div class="relative bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all border border-gray-100 group hover:-translate-y-1 step-connector">
+            <div class="absolute -top-4 -left-2 w-10 h-10 bg-brand-600 text-white rounded-xl flex items-center justify-center font-bold text-sm shadow-lg">2</div>
+            <div class="w-14 h-14 bg-purple-50 rounded-2xl flex items-center justify-center mb-5 group-hover:bg-purple-100 transition-colors">
+              <i class="fas fa-robot text-2xl text-purple-600"></i>
+            </div>
+            <h3 class="text-lg font-bold text-gray-900 mb-2">AIが自動分析</h3>
+            <p class="text-gray-600 text-sm leading-relaxed">参考サイトの構造・デザインパターンを解析。事業情報も自動収集します。</p>
+            <div class="mt-4 text-xs text-purple-600 font-semibold">処理時間: 約1時間</div>
+          </div>
+        </div>
+        <!-- Step 3 -->
+        <div class="fade-in relative" style="transition-delay: 0.2s;">
+          <div class="relative bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all border border-gray-100 group hover:-translate-y-1 step-connector">
+            <div class="absolute -top-4 -left-2 w-10 h-10 bg-brand-600 text-white rounded-xl flex items-center justify-center font-bold text-sm shadow-lg">3</div>
+            <div class="w-14 h-14 bg-orange-50 rounded-2xl flex items-center justify-center mb-5 group-hover:bg-orange-100 transition-colors">
+              <i class="fas fa-wand-magic-sparkles text-2xl text-orange-600"></i>
+            </div>
+            <h3 class="text-lg font-bold text-gray-900 mb-2">初稿自動生成</h3>
+            <p class="text-gray-600 text-sm leading-relaxed">AI品質評価で<strong>88点以上</strong>の初稿を自動生成。著作権クリーンを保証。</p>
+            <div class="mt-4 text-xs text-orange-600 font-semibold">24時間以内に完成</div>
+          </div>
+        </div>
+        <!-- Step 4 -->
+        <div class="fade-in" style="transition-delay: 0.3s;">
+          <div class="relative bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all border border-gray-100 group hover:-translate-y-1">
+            <div class="absolute -top-4 -left-2 w-10 h-10 bg-brand-600 text-white rounded-xl flex items-center justify-center font-bold text-sm shadow-lg">4</div>
+            <div class="w-14 h-14 bg-emerald-50 rounded-2xl flex items-center justify-center mb-5 group-hover:bg-emerald-100 transition-colors">
+              <i class="fas fa-check-double text-2xl text-emerald-600"></i>
+            </div>
+            <h3 class="text-lg font-bold text-gray-900 mb-2">確認・納品</h3>
+            <p class="text-gray-600 text-sm leading-relaxed">初稿を確認後、フィードバックを基に修正。ご満足いただけたら納品完了。</p>
+            <div class="mt-4 text-xs text-emerald-600 font-semibold">専任担当者がサポート</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== Features ========== -->
+  <section id="features" class="py-20 lg:py-28 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-16 fade-in">
+        <div class="inline-flex items-center gap-2 bg-emerald-50 text-emerald-700 rounded-full px-4 py-1.5 mb-4 text-sm font-semibold">
+          <i class="fas fa-star"></i> 特長
+        </div>
+        <h2 class="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-4">
+          なぜ<span class="gradient-text">AI Web Production</span>なのか
+        </h2>
+        <p class="text-lg text-gray-600 max-w-2xl mx-auto">従来のWeb制作の課題を、AIテクノロジーで根本から解決します。</p>
+      </div>
+
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <!-- Feature 1 -->
+        <div class="fade-in group">
+          <div class="bg-gradient-to-br from-brand-50 to-white rounded-2xl p-8 border border-brand-100 hover:shadow-xl transition-all hover:-translate-y-1 h-full">
+            <div class="w-14 h-14 bg-brand-600 rounded-2xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+              <i class="fas fa-minimize text-xl text-white"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 mb-3">Zero-Friction Intake</h3>
+            <p class="text-gray-600 leading-relaxed">入力はわずか7項目。複雑なヒアリングシート不要。約3〜5分で依頼が完了する最小フリクション設計。</p>
+          </div>
+        </div>
+        <!-- Feature 2 -->
+        <div class="fade-in group" style="transition-delay: 0.1s;">
+          <div class="bg-gradient-to-br from-purple-50 to-white rounded-2xl p-8 border border-purple-100 hover:shadow-xl transition-all hover:-translate-y-1 h-full">
+            <div class="w-14 h-14 bg-purple-600 rounded-2xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+              <i class="fas fa-brain text-xl text-white"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 mb-3">AI最大補完</h3>
+            <p class="text-gray-600 leading-relaxed">公開情報探索、参考サイト構造解析、事業意図推定。AIが不足情報を自動で補完します。</p>
+          </div>
+        </div>
+        <!-- Feature 3 -->
+        <div class="fade-in group" style="transition-delay: 0.2s;">
+          <div class="bg-gradient-to-br from-emerald-50 to-white rounded-2xl p-8 border border-emerald-100 hover:shadow-xl transition-all hover:-translate-y-1 h-full">
+            <div class="w-14 h-14 bg-emerald-600 rounded-2xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+              <i class="fas fa-shield-halved text-xl text-white"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 mb-3">著作権クリーン保証</h3>
+            <p class="text-gray-600 leading-relaxed">クリーンルーム実装で構造・UI文法のみ抽出。コンテンツは完全オリジナルで安心。</p>
+          </div>
+        </div>
+        <!-- Feature 4 -->
+        <div class="fade-in group">
+          <div class="bg-gradient-to-br from-orange-50 to-white rounded-2xl p-8 border border-orange-100 hover:shadow-xl transition-all hover:-translate-y-1 h-full">
+            <div class="w-14 h-14 bg-orange-600 rounded-2xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+              <i class="fas fa-chart-line text-xl text-white"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 mb-3">品質保証ループ</h3>
+            <p class="text-gray-600 leading-relaxed">7つの評価軸で100点満点採点。88点以上で合格するまでAIが自動改善を繰り返します。</p>
+          </div>
+        </div>
+        <!-- Feature 5 -->
+        <div class="fade-in group" style="transition-delay: 0.1s;">
+          <div class="bg-gradient-to-br from-blue-50 to-white rounded-2xl p-8 border border-blue-100 hover:shadow-xl transition-all hover:-translate-y-1 h-full">
+            <div class="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+              <i class="fas fa-layer-group text-xl text-white"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 mb-3">3層データ信頼度</h3>
+            <p class="text-gray-600 leading-relaxed">Confirmed / Inferred / Assumed の3層分類でAI幻覚リスクを管理。透明性の高い制作プロセス。</p>
+          </div>
+        </div>
+        <!-- Feature 6 -->
+        <div class="fade-in group" style="transition-delay: 0.2s;">
+          <div class="bg-gradient-to-br from-pink-50 to-white rounded-2xl p-8 border border-pink-100 hover:shadow-xl transition-all hover:-translate-y-1 h-full">
+            <div class="w-14 h-14 bg-pink-600 rounded-2xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+              <i class="fas fa-mobile-screen text-xl text-white"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 mb-3">モバイル最適化</h3>
+            <p class="text-gray-600 leading-relaxed">全てのページがモバイルファーストで設計。どのデバイスでも美しく表示されます。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== AI Agent Showcase ========== -->
+  <section class="py-20 lg:py-28 bg-gray-900 text-white relative overflow-hidden">
+    <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.3) 1px, transparent 0); background-size: 32px 32px;"></div>
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-16 fade-in">
+        <div class="inline-flex items-center gap-2 bg-white/10 text-white rounded-full px-4 py-1.5 mb-4 text-sm font-semibold border border-white/20">
+          <i class="fas fa-robot"></i> AIエージェント群
+        </div>
+        <h2 class="text-3xl sm:text-4xl font-extrabold mb-4">
+          5つの専門AIが<span class="text-brand-400">連携</span>して制作
+        </h2>
+        <p class="text-lg text-white/70 max-w-2xl mx-auto">各エージェントが専門領域を担当。パイプライン処理で高品質な成果物を生成します。</p>
+      </div>
+
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Agent 1 -->
+        <div class="fade-in glass-card rounded-2xl p-6 hover:bg-white/10 transition-all">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center">
+              <i class="fas fa-magnifying-glass text-blue-400 text-lg"></i>
+            </div>
+            <div>
+              <h3 class="font-bold text-white">Discovery Agent</h3>
+              <p class="text-xs text-white/50">事業情報探索・推定</p>
+            </div>
+          </div>
+          <p class="text-white/70 text-sm leading-relaxed">会社名と住所から業種・サービス内容を自動推定。公開情報を収集し事業プロファイルを構築。</p>
+          <div class="mt-4 flex flex-wrap gap-2">
+            <span class="px-2 py-1 bg-blue-500/20 text-blue-300 text-xs rounded-lg">業種推定</span>
+            <span class="px-2 py-1 bg-blue-500/20 text-blue-300 text-xs rounded-lg">地域分析</span>
+            <span class="px-2 py-1 bg-blue-500/20 text-blue-300 text-xs rounded-lg">ターゲット推定</span>
+          </div>
+        </div>
+        <!-- Agent 2 -->
+        <div class="fade-in glass-card rounded-2xl p-6 hover:bg-white/10 transition-all" style="transition-delay: 0.1s;">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center">
+              <i class="fas fa-sitemap text-purple-400 text-lg"></i>
+            </div>
+            <div>
+              <h3 class="font-bold text-white">Analyzer Agent</h3>
+              <p class="text-xs text-white/50">参考サイト構造解析</p>
+            </div>
+          </div>
+          <p class="text-white/70 text-sm leading-relaxed">クリーンルーム原則に基づき、参考サイトのUI文法・配色・レイアウトパターンのみを安全に抽出。</p>
+          <div class="mt-4 flex flex-wrap gap-2">
+            <span class="px-2 py-1 bg-purple-500/20 text-purple-300 text-xs rounded-lg">構造抽出</span>
+            <span class="px-2 py-1 bg-purple-500/20 text-purple-300 text-xs rounded-lg">配色分析</span>
+            <span class="px-2 py-1 bg-purple-500/20 text-purple-300 text-xs rounded-lg">UIパターン</span>
+          </div>
+        </div>
+        <!-- Agent 3 -->
+        <div class="fade-in glass-card rounded-2xl p-6 hover:bg-white/10 transition-all" style="transition-delay: 0.2s;">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-12 h-12 bg-orange-500/20 rounded-xl flex items-center justify-center">
+              <i class="fas fa-code text-orange-400 text-lg"></i>
+            </div>
+            <div>
+              <h3 class="font-bold text-white">Builder Agent</h3>
+              <p class="text-xs text-white/50">フロントエンド生成</p>
+            </div>
+          </div>
+          <p class="text-white/70 text-sm leading-relaxed">事業プロファイルとレイアウト情報を統合し、セマンティックHTML/CSS/JSの完全なページを自動生成。</p>
+          <div class="mt-4 flex flex-wrap gap-2">
+            <span class="px-2 py-1 bg-orange-500/20 text-orange-300 text-xs rounded-lg">HTML/CSS/JS</span>
+            <span class="px-2 py-1 bg-orange-500/20 text-orange-300 text-xs rounded-lg">レスポンシブ</span>
+            <span class="px-2 py-1 bg-orange-500/20 text-orange-300 text-xs rounded-lg">A11y対応</span>
+          </div>
+        </div>
+        <!-- Agent 4 -->
+        <div class="fade-in glass-card rounded-2xl p-6 hover:bg-white/10 transition-all">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-12 h-12 bg-emerald-500/20 rounded-xl flex items-center justify-center">
+              <i class="fas fa-clipboard-check text-emerald-400 text-lg"></i>
+            </div>
+            <div>
+              <h3 class="font-bold text-white">Evaluator Agent</h3>
+              <p class="text-xs text-white/50">品質自動採点</p>
+            </div>
+          </div>
+          <p class="text-white/70 text-sm leading-relaxed">7つの評価軸で100点満点の品質採点を実施。88点以上かつ著作権クリア必須の厳格基準。</p>
+          <div class="mt-4 flex flex-wrap gap-2">
+            <span class="px-2 py-1 bg-emerald-500/20 text-emerald-300 text-xs rounded-lg">7軸採点</span>
+            <span class="px-2 py-1 bg-emerald-500/20 text-emerald-300 text-xs rounded-lg">88点基準</span>
+            <span class="px-2 py-1 bg-emerald-500/20 text-emerald-300 text-xs rounded-lg">自動改善</span>
+          </div>
+        </div>
+        <!-- Agent 5 -->
+        <div class="fade-in glass-card rounded-2xl p-6 hover:bg-white/10 transition-all" style="transition-delay: 0.1s;">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-12 h-12 bg-pink-500/20 rounded-xl flex items-center justify-center">
+              <i class="fas fa-wrench text-pink-400 text-lg"></i>
+            </div>
+            <div>
+              <h3 class="font-bold text-white">Refiner Agent</h3>
+              <p class="text-xs text-white/50">局所修正・改善</p>
+            </div>
+          </div>
+          <p class="text-white/70 text-sm leading-relaxed">減点項目のみピンポイント修正。全体再生成を避け、高得点箇所を保持しながら品質を向上。</p>
+          <div class="mt-4 flex flex-wrap gap-2">
+            <span class="px-2 py-1 bg-pink-500/20 text-pink-300 text-xs rounded-lg">局所修正</span>
+            <span class="px-2 py-1 bg-pink-500/20 text-pink-300 text-xs rounded-lg">最大3回</span>
+            <span class="px-2 py-1 bg-pink-500/20 text-pink-300 text-xs rounded-lg">影響範囲明示</span>
+          </div>
+        </div>
+        <!-- Pipeline Diagram -->
+        <div class="fade-in glass-card rounded-2xl p-6" style="transition-delay: 0.2s;">
+          <h3 class="font-bold text-white mb-4"><i class="fas fa-diagram-project mr-2"></i>パイプライン処理</h3>
+          <div class="space-y-3">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 bg-blue-500/30 rounded-lg flex items-center justify-center text-xs font-bold text-blue-300">1</div>
+              <div class="flex-1 h-1 bg-gradient-to-r from-blue-500/50 to-purple-500/50 rounded"></div>
+              <div class="w-8 h-8 bg-purple-500/30 rounded-lg flex items-center justify-center text-xs font-bold text-purple-300">2</div>
+            </div>
+            <div class="flex items-center gap-3 pl-12">
+              <div class="flex-1 h-1 bg-gradient-to-r from-purple-500/50 to-orange-500/50 rounded"></div>
+              <div class="w-8 h-8 bg-orange-500/30 rounded-lg flex items-center justify-center text-xs font-bold text-orange-300">3</div>
+            </div>
+            <div class="flex items-center gap-3 pl-24">
+              <div class="flex-1 h-1 bg-gradient-to-r from-orange-500/50 to-emerald-500/50 rounded"></div>
+              <div class="w-8 h-8 bg-emerald-500/30 rounded-lg flex items-center justify-center text-xs font-bold text-emerald-300">4</div>
+            </div>
+            <div class="flex items-center gap-3 pl-12">
+              <i class="fas fa-rotate-left text-pink-400 text-sm"></i>
+              <div class="flex-1 h-1 bg-gradient-to-r from-pink-500/50 to-emerald-500/50 rounded"></div>
+              <div class="w-8 h-8 bg-pink-500/30 rounded-lg flex items-center justify-center text-xs font-bold text-pink-300">5</div>
+            </div>
+          </div>
+          <p class="text-white/50 text-xs mt-4">※ 評価 → 修正ループは最大3回まで自動実行</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== Scoring System ========== -->
+  <section class="py-20 lg:py-28 bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+        <div class="fade-in">
+          <div class="inline-flex items-center gap-2 bg-brand-50 text-brand-700 rounded-full px-4 py-1.5 mb-4 text-sm font-semibold">
+            <i class="fas fa-chart-simple"></i> 品質評価システム
+          </div>
+          <h2 class="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-6">
+            7つの評価軸で<br><span class="gradient-text">100点満点</span>の品質保証
+          </h2>
+          <p class="text-gray-600 text-lg leading-relaxed mb-8">
+            AIが自動で品質を採点。88点以上の合格基準を満たすまで改善を繰り返し、常に高品質な成果物を保証します。
+          </p>
+          <div class="space-y-4">
+            <div class="flex items-center gap-3 bg-white rounded-xl p-4 border border-gray-100">
+              <div class="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center">
+                <i class="fas fa-check text-emerald-600"></i>
+              </div>
+              <div>
+                <div class="font-semibold text-gray-900">合格基準: 88点以上</div>
+                <div class="text-sm text-gray-500">厳格な品質ゲートで一定水準を保証</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-3 bg-white rounded-xl p-4 border border-gray-100">
+              <div class="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center">
+                <i class="fas fa-shield text-red-600"></i>
+              </div>
+              <div>
+                <div class="font-semibold text-gray-900">著作権クリア: 8点以上必須</div>
+                <div class="text-sm text-gray-500">法的リスクゼロを保証する必須条件</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-3 bg-white rounded-xl p-4 border border-gray-100">
+              <div class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
+                <i class="fas fa-rotate text-blue-600"></i>
+              </div>
+              <div>
+                <div class="font-semibold text-gray-900">最大3回の自動改善ループ</div>
+                <div class="text-sm text-gray-500">基準未達なら自動で修正を繰り返し</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Score Radar Chart -->
+        <div class="fade-in" style="transition-delay: 0.2s;">
+          <div class="bg-white rounded-2xl p-8 shadow-xl border border-gray-100">
+            <h3 class="font-bold text-gray-900 mb-6 text-center">品質スコア内訳（100点満点）</h3>
+            <div class="space-y-4">
+              <div>
+                <div class="flex justify-between text-sm mb-1.5"><span class="text-gray-700 font-medium">構造再現度</span><span class="font-bold text-brand-600">18 / 20</span></div>
+                <div class="h-3 bg-gray-100 rounded-full overflow-hidden"><div class="h-full bg-brand-500 rounded-full transition-all duration-1000" style="width: 90%"></div></div>
+              </div>
+              <div>
+                <div class="flex justify-between text-sm mb-1.5"><span class="text-gray-700 font-medium">顧客適合性</span><span class="font-bold text-purple-600">17 / 20</span></div>
+                <div class="h-3 bg-gray-100 rounded-full overflow-hidden"><div class="h-full bg-purple-500 rounded-full transition-all duration-1000" style="width: 85%"></div></div>
+              </div>
+              <div>
+                <div class="flex justify-between text-sm mb-1.5"><span class="text-gray-700 font-medium">営業訴求力</span><span class="font-bold text-orange-600">13 / 15</span></div>
+                <div class="h-3 bg-gray-100 rounded-full overflow-hidden"><div class="h-full bg-orange-500 rounded-full transition-all duration-1000" style="width: 87%"></div></div>
+              </div>
+              <div>
+                <div class="flex justify-between text-sm mb-1.5"><span class="text-gray-700 font-medium">情報設計</span><span class="font-bold text-blue-600">14 / 15</span></div>
+                <div class="h-3 bg-gray-100 rounded-full overflow-hidden"><div class="h-full bg-blue-500 rounded-full transition-all duration-1000" style="width: 93%"></div></div>
+              </div>
+              <div>
+                <div class="flex justify-between text-sm mb-1.5"><span class="text-gray-700 font-medium">モバイル最適化</span><span class="font-bold text-emerald-600">9 / 10</span></div>
+                <div class="h-3 bg-gray-100 rounded-full overflow-hidden"><div class="h-full bg-emerald-500 rounded-full transition-all duration-1000" style="width: 90%"></div></div>
+              </div>
+              <div>
+                <div class="flex justify-between text-sm mb-1.5"><span class="text-gray-700 font-medium">実装品質</span><span class="font-bold text-gray-600">9 / 10</span></div>
+                <div class="h-3 bg-gray-100 rounded-full overflow-hidden"><div class="h-full bg-gray-500 rounded-full transition-all duration-1000" style="width: 90%"></div></div>
+              </div>
+              <div>
+                <div class="flex justify-between text-sm mb-1.5"><span class="text-gray-700 font-medium">著作権クリア</span><span class="font-bold text-red-600">10 / 10</span></div>
+                <div class="h-3 bg-gray-100 rounded-full overflow-hidden"><div class="h-full bg-red-500 rounded-full transition-all duration-1000" style="width: 100%"></div></div>
+              </div>
+            </div>
+            <div class="mt-6 pt-6 border-t border-gray-100 flex items-center justify-between">
+              <span class="text-lg font-bold text-gray-900">総合スコア</span>
+              <div class="flex items-center gap-2">
+                <span class="text-3xl font-extrabold text-brand-600">90</span>
+                <span class="text-gray-400">/ 100</span>
+                <span class="ml-2 bg-emerald-100 text-emerald-700 text-xs font-bold px-2 py-1 rounded-full">合格</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== Pricing ========== -->
+  <section id="pricing" class="py-20 lg:py-28 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-16 fade-in">
+        <div class="inline-flex items-center gap-2 bg-brand-50 text-brand-700 rounded-full px-4 py-1.5 mb-4 text-sm font-semibold">
+          <i class="fas fa-tag"></i> 料金プラン
+        </div>
+        <h2 class="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-4">シンプルな料金体系</h2>
+        <p class="text-lg text-gray-600 max-w-2xl mx-auto">初稿は無料でお試し。納品後にお支払いの安心プランです。</p>
+      </div>
+      <div class="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+        <!-- Free Trial -->
+        <div class="fade-in bg-white rounded-2xl p-8 border-2 border-gray-200 hover:border-brand-300 transition-all hover:shadow-lg">
+          <h3 class="text-xl font-bold text-gray-900 mb-2">お試しプラン</h3>
+          <p class="text-gray-500 text-sm mb-6">初めてのお客様限定</p>
+          <div class="mb-6">
+            <span class="text-5xl font-extrabold text-gray-900">¥0</span>
+            <span class="text-gray-500 ml-1">/初稿</span>
+          </div>
+          <ul class="space-y-3 mb-8">
+            <li class="flex items-center gap-3 text-sm text-gray-600">
+              <i class="fas fa-check text-emerald-500"></i>営業用LP 1ページ
+            </li>
+            <li class="flex items-center gap-3 text-sm text-gray-600">
+              <i class="fas fa-check text-emerald-500"></i>AIによる初稿生成
+            </li>
+            <li class="flex items-center gap-3 text-sm text-gray-600">
+              <i class="fas fa-check text-emerald-500"></i>品質スコア表示
+            </li>
+            <li class="flex items-center gap-3 text-sm text-gray-400">
+              <i class="fas fa-times"></i>修正対応
+            </li>
+          </ul>
+          <a href="apply.html" class="block text-center bg-gray-100 text-gray-900 font-semibold py-3 rounded-xl hover:bg-gray-200 transition-colors">
+            無料で試す
+          </a>
+        </div>
+        <!-- Standard -->
+        <div class="fade-in bg-brand-600 rounded-2xl p-8 border-2 border-brand-600 shadow-xl relative" style="transition-delay: 0.1s;">
+          <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-orange-500 text-white text-xs font-bold px-4 py-1 rounded-full">人気No.1</div>
+          <h3 class="text-xl font-bold text-white mb-2">スタンダード</h3>
+          <p class="text-brand-200 text-sm mb-6">中小企業・個人事業主に最適</p>
+          <div class="mb-6">
+            <span class="text-5xl font-extrabold text-white">¥49,800</span>
+            <span class="text-brand-200 ml-1">/件</span>
+          </div>
+          <ul class="space-y-3 mb-8">
+            <li class="flex items-center gap-3 text-sm text-white/90">
+              <i class="fas fa-check text-brand-300"></i>営業用LP 1ページ
+            </li>
+            <li class="flex items-center gap-3 text-sm text-white/90">
+              <i class="fas fa-check text-brand-300"></i>AIによる初稿生成
+            </li>
+            <li class="flex items-center gap-3 text-sm text-white/90">
+              <i class="fas fa-check text-brand-300"></i>修正2回まで無料
+            </li>
+            <li class="flex items-center gap-3 text-sm text-white/90">
+              <i class="fas fa-check text-brand-300"></i>レスポンシブ対応
+            </li>
+          </ul>
+          <a href="apply.html" class="block text-center bg-white text-brand-700 font-bold py-3 rounded-xl hover:bg-brand-50 transition-colors">
+            申し込む
+          </a>
+        </div>
+        <!-- Premium -->
+        <div class="fade-in bg-white rounded-2xl p-8 border-2 border-gray-200 hover:border-brand-300 transition-all hover:shadow-lg" style="transition-delay: 0.2s;">
+          <h3 class="text-xl font-bold text-gray-900 mb-2">プレミアム</h3>
+          <p class="text-gray-500 text-sm mb-6">本格的なサイトが必要な方</p>
+          <div class="mb-6">
+            <span class="text-5xl font-extrabold text-gray-900">¥98,000</span>
+            <span class="text-gray-500 ml-1">/件</span>
+          </div>
+          <ul class="space-y-3 mb-8">
+            <li class="flex items-center gap-3 text-sm text-gray-600">
+              <i class="fas fa-check text-emerald-500"></i>最大5ページ対応
+            </li>
+            <li class="flex items-center gap-3 text-sm text-gray-600">
+              <i class="fas fa-check text-emerald-500"></i>AIによる初稿生成
+            </li>
+            <li class="flex items-center gap-3 text-sm text-gray-600">
+              <i class="fas fa-check text-emerald-500"></i>修正5回まで無料
+            </li>
+            <li class="flex items-center gap-3 text-sm text-gray-600">
+              <i class="fas fa-check text-emerald-500"></i>SEO基本対策
+            </li>
+          </ul>
+          <a href="apply.html" class="block text-center bg-gray-100 text-gray-900 font-semibold py-3 rounded-xl hover:bg-gray-200 transition-colors">
+            申し込む
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== FAQ ========== -->
+  <section id="faq" class="py-20 lg:py-28 bg-gray-50">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-16 fade-in">
+        <div class="inline-flex items-center gap-2 bg-brand-50 text-brand-700 rounded-full px-4 py-1.5 mb-4 text-sm font-semibold">
+          <i class="fas fa-circle-question"></i> FAQ
+        </div>
+        <h2 class="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-4">よくある質問</h2>
+      </div>
+
+      <div class="space-y-4 fade-in" id="faqContainer">
+        <!-- FAQ items will be rendered by JS -->
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== Final CTA ========== -->
+  <section class="py-20 lg:py-28 gradient-hero relative overflow-hidden">
+    <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.3) 1px, transparent 0); background-size: 40px 40px;"></div>
+    <div class="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white mb-6 leading-tight fade-in">
+        今すぐ、<span class="text-brand-300">5分</span>で<br>ホームページ制作を始めましょう
+      </h2>
+      <p class="text-lg text-white/80 mb-10 max-w-2xl mx-auto fade-in" style="transition-delay: 0.1s;">
+        入力はわずか7項目（約3〜5分）。業種・サービス・目的まで教えていただくことで、AIが高精度な初稿を24時間以内にお届けします。
+      </p>
+      <div class="fade-in" style="transition-delay: 0.2s;">
+        <a href="apply.html" class="inline-flex items-center gap-3 bg-white text-brand-700 font-bold text-lg px-10 py-5 rounded-2xl hover:bg-brand-50 transition-all shadow-xl hover:shadow-2xl hover:scale-105">
+          <i class="fas fa-paper-plane"></i>
+          無料で申し込む
+          <i class="fas fa-arrow-right text-sm"></i>
+        </a>
+        <p class="text-white/60 text-sm mt-4">※ 初稿生成は無料。納品後にお支払い。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== Footer ========== -->
+  <footer class="bg-gray-900 text-white py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid md:grid-cols-4 gap-8 mb-12">
+        <div class="md:col-span-2">
+          <div class="flex items-center gap-2 mb-4">
+            <div class="w-9 h-9 rounded-xl bg-brand-600 flex items-center justify-center">
+              <i class="fas fa-bolt text-white text-sm"></i>
+            </div>
+            <span class="font-bold text-lg">AI Web Production</span>
+          </div>
+          <p class="text-gray-400 text-sm leading-relaxed max-w-md">
+            最小入力フォーム（7項目）から高品質な営業用ホームページを半自動生成するシステム。Zero-Friction Intake & AI Harnessコンセプトで、Web制作の常識を変えます。
+          </p>
+        </div>
+        <div>
+          <h4 class="font-semibold mb-4 text-sm text-gray-300 uppercase tracking-wider">サービス</h4>
+          <ul class="space-y-2 text-sm text-gray-400">
+            <li><a href="#how-it-works" class="hover:text-white transition-colors">仕組み</a></li>
+            <li><a href="#features" class="hover:text-white transition-colors">特長</a></li>
+            <li><a href="#pricing" class="hover:text-white transition-colors">料金</a></li>
+            <li><a href="#faq" class="hover:text-white transition-colors">FAQ</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-semibold mb-4 text-sm text-gray-300 uppercase tracking-wider">リンク</h4>
+          <ul class="space-y-2 text-sm text-gray-400">
+            <li><a href="apply.html" class="hover:text-white transition-colors">お申し込み</a></li>
+            <li><a href="admin.html" class="hover:text-white transition-colors">管理画面</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="border-t border-gray-800 pt-8 text-center text-sm text-gray-500">
+        <p>&copy; 2026 AI Web Production System. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // ========== Navigation Scroll Effect ==========
+    const nav = document.getElementById('mainNav');
+    const logoText = nav.querySelector('.nav-logo-text');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 50) {
+        nav.classList.add('bg-white/95', 'backdrop-blur-lg', 'shadow-sm', 'border-b', 'border-gray-100');
+        nav.querySelectorAll('a:not(.bg-white):not(.bg-brand-600)').forEach(a => {
+          a.classList.remove('text-white/80', 'text-white');
+          a.classList.add('text-gray-700', 'hover:text-brand-600');
+        });
+        logoText.classList.remove('text-white');
+        logoText.classList.add('text-gray-900');
+      } else {
+        nav.classList.remove('bg-white/95', 'backdrop-blur-lg', 'shadow-sm', 'border-b', 'border-gray-100');
+        nav.querySelectorAll('a:not(.bg-white):not(.bg-brand-600)').forEach(a => {
+          a.classList.remove('text-gray-700', 'hover:text-brand-600');
+          a.classList.add('text-white/80');
+        });
+        logoText.classList.add('text-white');
+        logoText.classList.remove('text-gray-900');
+      }
+    });
+
+    // ========== Mobile Menu ==========
+    document.getElementById('mobileMenuBtn').addEventListener('click', () => {
+      const menu = document.getElementById('mobileMenu');
+      menu.classList.toggle('hidden');
+    });
+
+    // ========== Fade In Observer ==========
+    const fadeObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+    document.querySelectorAll('.fade-in').forEach(el => fadeObserver.observe(el));
+
+    // ========== Count Up Animation ==========
+    const countObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const el = entry.target;
+          const target = parseInt(el.dataset.target);
+          let current = 0;
+          const step = target / 40;
+          const timer = setInterval(() => {
+            current += step;
+            if (current >= target) {
+              current = target;
+              clearInterval(timer);
+            }
+            el.textContent = Math.round(current);
+          }, 30);
+          countObserver.unobserve(el);
+        }
+      });
+    }, { threshold: 0.5 });
+    document.querySelectorAll('.count-up').forEach(el => countObserver.observe(el));
+
+    // ========== Particles ==========
+    const particleContainer = document.getElementById('particles');
+    for (let i = 0; i < 20; i++) {
+      const p = document.createElement('div');
+      p.className = 'particle';
+      p.style.left = Math.random() * 100 + '%';
+      p.style.animationDuration = (Math.random() * 10 + 8) + 's';
+      p.style.animationDelay = (Math.random() * 8) + 's';
+      p.style.width = p.style.height = (Math.random() * 4 + 2) + 'px';
+      particleContainer.appendChild(p);
+    }
+
+    // ========== FAQ ==========
+    const faqs = [
+      { q: 'なぜ7項目だけで依頼できるのですか？', a: '基本4項目（会社名・住所・メール・参考URL）に加え、業種・主力サービス・サイト目的の3項目を入力いただくことで、AIが高精度に情報を補完します。7項目でも入力時間は約3〜5分。業種選択でプレースホルダーが自動変更されるなど、入力支援も充実しています。' },
+      { q: '参考サイトの著作権は大丈夫ですか？', a: 'クリーンルーム実装を徹底しています。参考サイトからはページ構造・配色パターン・UIパターンなどの「UI文法」のみを抽出し、テキスト・画像・固有表現は一切コピーしません。コンテンツは100%オリジナルで生成されます。' },
+      { q: 'AIの推定情報が間違っていたらどうなりますか？', a: '3層データ信頼度アーキテクチャを採用しています。AIの推定（Inferred）と仮説（Assumed）は明確に区別され、初稿提示時に確認いただきます。修正が必要な場合は、フィードバックを基に即座に反映します。' },
+      { q: '納期はどれくらいですか？', a: '申込から24時間以内に初稿をお届けします。AIによる自動生成のため、従来のWeb制作と比べて大幅に短期間で完成します。修正対応は通常1-2営業日です。' },
+      { q: '品質スコアの88点基準とは何ですか？', a: '構造再現度、顧客適合性、営業訴求力、情報設計、モバイル最適化、実装品質、著作権クリアの7つの評価軸で100点満点で採点します。88点以上かつ著作権クリア8点以上が合格条件です。基準未達の場合はAIが自動で改善を行います。' },
+      { q: '対応できない業種はありますか？', a: '基本的にはあらゆる業種に対応可能です。ただし、法律で規制されている業種や、反社会的な事業のサイト制作はお断りさせていただく場合があります。' }
+    ];
+    
+    const faqContainer = document.getElementById('faqContainer');
+    faqs.forEach((faq, i) => {
+      const item = document.createElement('div');
+      item.className = 'bg-white rounded-xl border border-gray-200 overflow-hidden';
+      item.innerHTML = `
+        <button class="w-full flex items-center justify-between px-6 py-5 text-left hover:bg-gray-50 transition-colors" onclick="toggleFaq(this)">
+          <span class="font-semibold text-gray-900 pr-4">${faq.q}</span>
+          <i class="fas fa-chevron-down text-gray-400 transition-transform duration-300 flex-shrink-0"></i>
+        </button>
+        <div class="faq-answer hidden px-6 pb-5">
+          <p class="text-gray-600 leading-relaxed text-sm">${faq.a}</p>
+        </div>
+      `;
+      faqContainer.appendChild(item);
+    });
+
+    function toggleFaq(btn) {
+      const answer = btn.nextElementSibling;
+      const icon = btn.querySelector('i');
+      const isOpen = !answer.classList.contains('hidden');
+      
+      // Close all
+      document.querySelectorAll('.faq-answer').forEach(a => a.classList.add('hidden'));
+      document.querySelectorAll('#faqContainer button i').forEach(i => i.classList.remove('rotate-180'));
+      
+      if (!isOpen) {
+        answer.classList.remove('hidden');
+        icon.classList.add('rotate-180');
+      }
+    }
+  </script>
+</body>
+</html>
