@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>管理画面 | AI Web Production</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+JP:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'Noto Sans JP', 'sans-serif'] },
+          colors: {
+            brand: {
+              50: '#eef2ff', 100: '#e0e7ff', 200: '#c7d2fe', 300: '#a5b4fc',
+              400: '#818cf8', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca',
+              800: '#3730a3', 900: '#312e81',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Inter', 'Noto Sans JP', sans-serif; }
+    .sidebar-link.active { background: rgba(99, 102, 241, 0.1); color: #4f46e5; border-right: 3px solid #4f46e5; }
+    .tab-btn.active { border-bottom: 2px solid #4f46e5; color: #4f46e5; }
+    @keyframes slideIn { from { opacity:0; transform: translateX(20px); } to { opacity:1; transform: translateX(0); } }
+    .slide-in { animation: slideIn 0.3s ease; }
+    .score-ring { transition: stroke-dashoffset 1s ease; }
+  </style>
+</head>
+<body class="bg-gray-50 antialiased">
+  <div class="flex h-screen overflow-hidden">
+    <!-- ===== Sidebar ===== -->
+    <aside id="sidebar" class="hidden lg:flex flex-col w-64 bg-white border-r border-gray-200 flex-shrink-0">
+      <div class="p-5 border-b border-gray-100">
+        <a href="index.html" class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-brand-600 flex items-center justify-center">
+            <i class="fas fa-bolt text-white text-xs"></i>
+          </div>
+          <span class="font-bold text-gray-900">AI Web Prod.</span>
+        </a>
+      </div>
+      <nav class="flex-1 p-3 space-y-1 overflow-y-auto">
+        <button onclick="switchView('dashboard')" class="sidebar-link active w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all hover:bg-gray-50 text-left" data-view="dashboard">
+          <i class="fas fa-chart-pie w-5 text-center"></i>ダッシュボード
+        </button>
+        <button onclick="switchView('projects')" class="sidebar-link w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all hover:bg-gray-50 text-left text-gray-600" data-view="projects">
+          <i class="fas fa-folder-open w-5 text-center"></i>案件一覧
+        </button>
+        <button onclick="switchView('detail')" class="sidebar-link w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all hover:bg-gray-50 text-left text-gray-600" data-view="detail" id="sidebarDetailBtn" style="display:none;">
+          <i class="fas fa-file-alt w-5 text-center"></i>案件詳細
+        </button>
+      </nav>
+      <div class="p-4 border-t border-gray-100">
+        <a href="index.html" class="flex items-center gap-2 text-sm text-gray-500 hover:text-brand-600 transition-colors">
+          <i class="fas fa-arrow-left"></i>営業ページに戻る
+        </a>
+      </div>
+    </aside>
+
+    <!-- ===== Main ===== -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+      <!-- Header -->
+      <header class="bg-white border-b border-gray-200 px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between flex-shrink-0">
+        <div class="flex items-center gap-3">
+          <button onclick="toggleSidebar()" class="lg:hidden p-2 text-gray-500 hover:text-gray-900">
+            <i class="fas fa-bars text-xl"></i>
+          </button>
+          <h1 id="viewTitle" class="text-xl font-bold text-gray-900">ダッシュボード</h1>
+        </div>
+        <div class="flex items-center gap-3">
+          <button onclick="refreshData()" class="p-2 text-gray-400 hover:text-brand-600 transition-colors" title="更新">
+            <i class="fas fa-arrows-rotate"></i>
+          </button>
+          <a href="apply.html" class="hidden sm:inline-flex items-center gap-2 bg-brand-600 text-white font-semibold text-sm px-4 py-2 rounded-lg hover:bg-brand-700 transition-colors">
+            <i class="fas fa-plus"></i>新規案件
+          </a>
+        </div>
+      </header>
+
+      <!-- Content -->
+      <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
+        <!-- ===== Dashboard View ===== -->
+        <div id="view-dashboard" class="view-content">
+          <!-- Stats Cards -->
+          <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <div class="bg-white rounded-xl border border-gray-100 p-5 shadow-sm">
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">総案件数</span>
+                <div class="w-9 h-9 bg-brand-50 rounded-lg flex items-center justify-center"><i class="fas fa-folder text-brand-600 text-sm"></i></div>
+              </div>
+              <div id="statTotal" class="text-3xl font-extrabold text-gray-900">-</div>
+            </div>
+            <div class="bg-white rounded-xl border border-gray-100 p-5 shadow-sm">
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">処理中</span>
+                <div class="w-9 h-9 bg-yellow-50 rounded-lg flex items-center justify-center"><i class="fas fa-spinner text-yellow-600 text-sm"></i></div>
+              </div>
+              <div id="statProcessing" class="text-3xl font-extrabold text-gray-900">-</div>
+            </div>
+            <div class="bg-white rounded-xl border border-gray-100 p-5 shadow-sm">
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">レビュー待ち</span>
+                <div class="w-9 h-9 bg-green-50 rounded-lg flex items-center justify-center"><i class="fas fa-check-circle text-green-600 text-sm"></i></div>
+              </div>
+              <div id="statReview" class="text-3xl font-extrabold text-gray-900">-</div>
+            </div>
+            <div class="bg-white rounded-xl border border-gray-100 p-5 shadow-sm">
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">平均スコア</span>
+                <div class="w-9 h-9 bg-emerald-50 rounded-lg flex items-center justify-center"><i class="fas fa-star text-emerald-600 text-sm"></i></div>
+              </div>
+              <div id="statAvgScore" class="text-3xl font-extrabold text-gray-900">-</div>
+            </div>
+          </div>
+
+          <!-- Charts Row -->
+          <div class="grid lg:grid-cols-2 gap-6 mb-8">
+            <div class="bg-white rounded-xl border border-gray-100 p-6 shadow-sm">
+              <h3 class="font-bold text-gray-900 mb-4">ステータス分布</h3>
+              <div style="height: 280px;"><canvas id="statusChart"></canvas></div>
+            </div>
+            <div class="bg-white rounded-xl border border-gray-100 p-6 shadow-sm">
+              <h3 class="font-bold text-gray-900 mb-4">品質スコア推移</h3>
+              <div style="height: 280px;"><canvas id="scoreChart"></canvas></div>
+            </div>
+          </div>
+
+          <!-- Recent projects -->
+          <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+              <h3 class="font-bold text-gray-900">最近の案件</h3>
+              <button onclick="switchView('projects')" class="text-sm text-brand-600 hover:text-brand-700 font-medium">すべて見る →</button>
+            </div>
+            <div id="recentProjects" class="divide-y divide-gray-50">
+              <div class="p-8 text-center text-gray-400"><i class="fas fa-spinner fa-spin mr-2"></i>読み込み中...</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== Projects List View ===== -->
+        <div id="view-projects" class="view-content hidden">
+          <!-- Filters -->
+          <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-4 mb-6 flex flex-wrap items-center gap-3">
+            <div class="flex-1 min-w-[200px]">
+              <div class="relative">
+                <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+                <input id="searchInput" type="text" placeholder="会社名で検索..."
+                  class="w-full pl-9 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:border-brand-400 focus:ring-2 focus:ring-brand-100 transition-all"
+                  oninput="filterProjects()">
+              </div>
+            </div>
+            <select id="statusFilter" onchange="filterProjects()" class="px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm">
+              <option value="">全ステータス</option>
+              <option value="SUBMITTED">申込受付</option>
+              <option value="DISCOVERING">探索中</option>
+              <option value="ANALYZING">分析中</option>
+              <option value="BUILDING">生成中</option>
+              <option value="REVIEW_READY">レビュー待ち</option>
+              <option value="APPROVED">承認済み</option>
+              <option value="ERROR">エラー</option>
+            </select>
+          </div>
+
+          <!-- Projects Table -->
+          <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full">
+                <thead>
+                  <tr class="bg-gray-50 border-b border-gray-100">
+                    <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">会社名</th>
+                    <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider hidden sm:table-cell">メール</th>
+                    <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">ステータス</th>
+                    <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider hidden md:table-cell">スコア</th>
+                    <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider hidden lg:table-cell">申込日時</th>
+                    <th class="text-right px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">操作</th>
+                  </tr>
+                </thead>
+                <tbody id="projectsTableBody" class="divide-y divide-gray-50">
+                  <tr><td colspan="6" class="p-8 text-center text-gray-400"><i class="fas fa-spinner fa-spin mr-2"></i>読み込み中...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== Project Detail View ===== -->
+        <div id="view-detail" class="view-content hidden slide-in">
+          <div id="detailContent">
+            <div class="p-12 text-center text-gray-400"><i class="fas fa-spinner fa-spin mr-2"></i>読み込み中...</div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Mobile Sidebar Overlay -->
+  <div id="sidebarOverlay" class="hidden fixed inset-0 bg-black/50 z-40 lg:hidden" onclick="toggleSidebar()"></div>
+
+  <script src="js/api.js"></script>
+  <script>
+    // ========== State ==========
+    let allProjects = [];
+    let currentProjectId = null;
+    let statusChartInstance = null;
+    let scoreChartInstance = null;
+
+    // ========== Init ==========
+    document.addEventListener('DOMContentLoaded', () => {
+      loadDashboard();
+    });
+
+    // ========== Sidebar ==========
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('sidebarOverlay');
+      sidebar.classList.toggle('hidden');
+      sidebar.classList.toggle('fixed');
+      sidebar.classList.toggle('z-50');
+      sidebar.classList.toggle('h-full');
+      overlay.classList.toggle('hidden');
+    }
+
+    // ========== View Switching ==========
+    function switchView(view) {
+      document.querySelectorAll('.view-content').forEach(v => v.classList.add('hidden'));
+      document.getElementById(`view-${view}`).classList.remove('hidden');
+      
+      document.querySelectorAll('.sidebar-link').forEach(l => {
+        l.classList.remove('active');
+        l.classList.add('text-gray-600');
+      });
+      const activeBtn = document.querySelector(`[data-view="${view}"]`);
+      if (activeBtn) {
+        activeBtn.classList.add('active');
+        activeBtn.classList.remove('text-gray-600');
+      }
+
+      const titles = { dashboard: 'ダッシュボード', projects: '案件一覧', detail: '案件詳細' };
+      document.getElementById('viewTitle').textContent = titles[view] || '';
+
+      if (view === 'dashboard') loadDashboard();
+      if (view === 'projects') loadProjects();
+    }
+
+    // ========== Load Dashboard ==========
+    async function loadDashboard() {
+      try {
+        const result = await API.list('projects', { limit: 100 });
+        allProjects = result.data || [];
+
+        // Stats
+        document.getElementById('statTotal').textContent = allProjects.length;
+        const processing = allProjects.filter(p => ['DISCOVERING','ANALYZING','BUILDING'].includes(p.status)).length;
+        document.getElementById('statProcessing').textContent = processing;
+        const review = allProjects.filter(p => p.status === 'REVIEW_READY').length;
+        document.getElementById('statReview').textContent = review;
+        
+        const scored = allProjects.filter(p => p.quality_score > 0);
+        const avg = scored.length > 0 ? Math.round(scored.reduce((s,p) => s + (p.quality_score || 0), 0) / scored.length) : '-';
+        document.getElementById('statAvgScore').textContent = avg;
+
+        // Status Chart
+        renderStatusChart(allProjects);
+        // Score Chart
+        renderScoreChart(allProjects);
+        // Recent Projects
+        renderRecentProjects(allProjects.slice(0, 5));
+      } catch (err) {
+        console.error('Dashboard load error:', err);
+      }
+    }
+
+    function renderStatusChart(projects) {
+      const counts = {};
+      projects.forEach(p => { counts[p.status] = (counts[p.status] || 0) + 1; });
+      
+      const labels = Object.keys(counts).map(s => STATUS_MAP[s]?.label || s);
+      const data = Object.values(counts);
+      const colors = ['#6366f1','#f59e0b','#8b5cf6','#f97316','#10b981','#06b6d4','#6b7280','#ef4444'];
+
+      if (statusChartInstance) statusChartInstance.destroy();
+      statusChartInstance = new Chart(document.getElementById('statusChart'), {
+        type: 'doughnut',
+        data: {
+          labels,
+          datasets: [{ data, backgroundColor: colors.slice(0, data.length), borderWidth: 0 }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { position: 'bottom', labels: { padding: 16, font: { size: 11 } } } },
+          cutout: '65%'
+        }
+      });
+    }
+
+    function renderScoreChart(projects) {
+      const scored = projects.filter(p => p.quality_score > 0).slice(-10);
+      const labels = scored.map(p => p.company_name?.substring(0, 8) || 'N/A');
+      const data = scored.map(p => p.quality_score);
+
+      if (scoreChartInstance) scoreChartInstance.destroy();
+      scoreChartInstance = new Chart(document.getElementById('scoreChart'), {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [{
+            label: '品質スコア',
+            data,
+            backgroundColor: data.map(d => d >= 88 ? '#10b981' : d >= 70 ? '#f59e0b' : '#ef4444'),
+            borderRadius: 6,
+            barThickness: 32
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { beginAtZero: true, max: 100, grid: { color: '#f3f4f6' } },
+            x: { grid: { display: false } }
+          }
+        }
+      });
+    }
+
+    function renderRecentProjects(projects) {
+      const container = document.getElementById('recentProjects');
+      if (!projects.length) {
+        container.innerHTML = `
+          <div class="p-12 text-center">
+            <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <i class="fas fa-folder-open text-gray-300 text-2xl"></i>
+            </div>
+            <p class="text-gray-500 mb-2">案件がまだありません</p>
+            <a href="apply.html" class="text-brand-600 text-sm font-medium hover:underline">最初の案件を作成 →</a>
+          </div>`;
+        return;
+      }
+      container.innerHTML = projects.map(p => `
+        <div class="px-6 py-4 flex items-center justify-between hover:bg-gray-50 cursor-pointer transition-colors" onclick="openDetail('${p.id}')">
+          <div class="flex items-center gap-4 min-w-0">
+            <div class="w-10 h-10 bg-brand-50 rounded-lg flex items-center justify-center flex-shrink-0">
+              <i class="fas fa-building text-brand-600 text-sm"></i>
+            </div>
+            <div class="min-w-0">
+              <div class="font-semibold text-gray-900 text-sm truncate">${escHtml(p.company_name || '')}</div>
+              <div class="text-xs text-gray-500 flex items-center gap-2 mt-0.5">${p.industry ? getIndustryBadge(p.industry) : ''}<span class="truncate">${escHtml(p.email || '')}</span></div>
+            </div>
+          </div>
+          <div class="flex items-center gap-3 flex-shrink-0 ml-4">
+            ${p.quality_score > 0 ? `<span class="text-sm font-bold ${p.quality_score >= 88 ? 'text-emerald-600' : 'text-orange-600'}">${p.quality_score}点</span>` : ''}
+            ${getStatusBadge(p.status)}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // ========== Load Projects ==========
+    async function loadProjects() {
+      try {
+        const result = await API.list('projects', { limit: 100 });
+        allProjects = result.data || [];
+        renderProjectsTable(allProjects);
+      } catch (err) {
+        console.error('Projects load error:', err);
+      }
+    }
+
+    function filterProjects() {
+      const search = document.getElementById('searchInput').value.toLowerCase();
+      const status = document.getElementById('statusFilter').value;
+      let filtered = allProjects;
+      if (search) filtered = filtered.filter(p => (p.company_name || '').toLowerCase().includes(search));
+      if (status) filtered = filtered.filter(p => p.status === status);
+      renderProjectsTable(filtered);
+    }
+
+    function renderProjectsTable(projects) {
+      const tbody = document.getElementById('projectsTableBody');
+      if (!projects.length) {
+        tbody.innerHTML = `<tr><td colspan="6" class="p-12 text-center">
+          <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i class="fas fa-search text-gray-300 text-2xl"></i>
+          </div>
+          <p class="text-gray-500">該当する案件がありません</p>
+        </td></tr>`;
+        return;
+      }
+      tbody.innerHTML = projects.map(p => `
+        <tr class="hover:bg-gray-50 cursor-pointer transition-colors" onclick="openDetail('${p.id}')">
+          <td class="px-6 py-4">
+            <div class="font-semibold text-gray-900 text-sm">${escHtml(p.company_name || '')}</div>
+            <div class="text-xs text-gray-400 flex items-center gap-2 mt-0.5">${p.industry ? getIndustryBadge(p.industry) : ''}<span class="truncate max-w-[120px]">${escHtml(p.address || '')}</span></div>
+          </td>
+          <td class="px-6 py-4 text-sm text-gray-600 hidden sm:table-cell">${escHtml(p.email || '')}</td>
+          <td class="px-6 py-4">${getStatusBadge(p.status)}</td>
+          <td class="px-6 py-4 hidden md:table-cell">
+            ${p.quality_score > 0 ? `<span class="text-sm font-bold ${p.quality_score >= 88 ? 'text-emerald-600' : 'text-orange-600'}">${p.quality_score}/100</span>` : '<span class="text-gray-400 text-sm">-</span>'}
+          </td>
+          <td class="px-6 py-4 text-sm text-gray-500 hidden lg:table-cell">${formatDate(p.created_at)}</td>
+          <td class="px-6 py-4 text-right">
+            <button class="text-brand-600 hover:text-brand-700 text-sm font-medium">
+              詳細 <i class="fas fa-chevron-right text-xs ml-1"></i>
+            </button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    // ========== Project Detail ==========
+    async function openDetail(projectId) {
+      currentProjectId = projectId;
+      document.getElementById('sidebarDetailBtn').style.display = 'block';
+      switchView('detail');
+      
+      const container = document.getElementById('detailContent');
+      container.innerHTML = '<div class="p-12 text-center text-gray-400"><i class="fas fa-spinner fa-spin mr-2"></i>読み込み中...</div>';
+
+      try {
+        const project = await API.get('projects', projectId);
+        
+        // Load related data
+        const [profilesRes, analysesRes, logsRes, scoresRes] = await Promise.all([
+          API.list('business_profiles', { search: projectId, limit: 10 }),
+          API.list('reference_analyses', { search: projectId, limit: 10 }),
+          API.list('process_logs', { search: projectId, limit: 50 }),
+          API.list('evaluation_scores', { search: projectId, limit: 10 })
+        ]);
+
+        const profile = (profilesRes.data || []).find(p => p.project_id === projectId);
+        const analysis = (analysesRes.data || []).find(a => a.project_id === projectId);
+        const logs = (logsRes.data || []).filter(l => l.project_id === projectId);
+        const scores = (scoresRes.data || []).filter(s => s.project_id === projectId);
+        const latestScore = scores.sort((a,b) => (b.iteration||0) - (a.iteration||0))[0];
+
+        renderDetail(project, profile, analysis, logs, latestScore);
+      } catch (err) {
+        console.error('Detail load error:', err);
+        container.innerHTML = `<div class="p-12 text-center"><div class="text-red-500 mb-2"><i class="fas fa-exclamation-triangle text-2xl"></i></div><p class="text-gray-600">データの読み込みに失敗しました</p></div>`;
+      }
+    }
+
+    function renderDetail(project, profile, analysis, logs, score) {
+      const p = project;
+      const container = document.getElementById('detailContent');
+      
+      container.innerHTML = `
+        <!-- Header -->
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
+          <div>
+            <button onclick="switchView('projects')" class="text-sm text-gray-500 hover:text-brand-600 mb-2 inline-flex items-center gap-1 transition-colors">
+              <i class="fas fa-arrow-left text-xs"></i>案件一覧に戻る
+            </button>
+            <h2 class="text-2xl font-extrabold text-gray-900">${escHtml(p.company_name || '')}</h2>
+            <p class="text-sm text-gray-500 mt-1">${escHtml(p.address || '')}</p>
+          </div>
+          <div class="flex items-center gap-3">
+            ${getStatusBadge(p.status)}
+            ${p.status === 'REVIEW_READY' ? `
+              <button onclick="approveProject('${p.id}')" class="inline-flex items-center gap-2 bg-emerald-600 text-white font-semibold text-sm px-4 py-2 rounded-lg hover:bg-emerald-700 transition-colors">
+                <i class="fas fa-check"></i>承認
+              </button>
+              <button onclick="rejectProject('${p.id}')" class="inline-flex items-center gap-2 bg-red-100 text-red-700 font-semibold text-sm px-4 py-2 rounded-lg hover:bg-red-200 transition-colors">
+                <i class="fas fa-times"></i>差戻し
+              </button>
+            ` : ''}
+            ${p.status === 'ERROR' ? `
+              <button onclick="retryProject('${p.id}')" class="inline-flex items-center gap-2 bg-orange-600 text-white font-semibold text-sm px-4 py-2 rounded-lg hover:bg-orange-700 transition-colors">
+                <i class="fas fa-redo"></i>再実行
+              </button>
+            ` : ''}
+          </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="border-b border-gray-200 mb-6">
+          <div class="flex gap-6 overflow-x-auto">
+            <button class="tab-btn active text-sm font-semibold pb-3 border-b-2 transition-colors whitespace-nowrap" onclick="switchTab(this, 'tabOverview')">概要</button>
+            <button class="tab-btn text-sm font-semibold pb-3 border-b-2 border-transparent text-gray-500 transition-colors whitespace-nowrap" onclick="switchTab(this, 'tabProfile')">事業プロファイル</button>
+            <button class="tab-btn text-sm font-semibold pb-3 border-b-2 border-transparent text-gray-500 transition-colors whitespace-nowrap" onclick="switchTab(this, 'tabAnalysis')">参考サイト分析</button>
+            <button class="tab-btn text-sm font-semibold pb-3 border-b-2 border-transparent text-gray-500 transition-colors whitespace-nowrap" onclick="switchTab(this, 'tabScore')">品質評価</button>
+            <button class="tab-btn text-sm font-semibold pb-3 border-b-2 border-transparent text-gray-500 transition-colors whitespace-nowrap" onclick="switchTab(this, 'tabLogs')">処理ログ</button>
+          </div>
+        </div>
+
+        <!-- Tab: Overview -->
+        <div id="tabOverview" class="tab-content">
+          <div class="grid lg:grid-cols-3 gap-6">
+            <!-- Confirmed Data -->
+            <div class="lg:col-span-2 space-y-6">
+              <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
+                <h3 class="font-bold text-gray-900 mb-4 flex items-center gap-2">
+                  <span class="w-3 h-3 bg-emerald-500 rounded-full"></span>
+                  Confirmed Data（確定情報）
+                </h3>
+                <div class="grid sm:grid-cols-2 gap-4">
+                  <div><div class="text-xs text-gray-500 mb-1">会社名/屋号</div><div class="font-semibold text-gray-900">${escHtml(p.company_name || '')}</div></div>
+                  <div><div class="text-xs text-gray-500 mb-1">メールアドレス</div><div class="font-semibold text-gray-900">${escHtml(p.email || '')}</div></div>
+                  <div class="sm:col-span-2"><div class="text-xs text-gray-500 mb-1">住所</div><div class="font-semibold text-gray-900">${escHtml(p.address || '')}</div></div>
+                  <div class="sm:col-span-2"><div class="text-xs text-gray-500 mb-1">参考サイトURL</div><a href="${escHtml(p.reference_url || '')}" target="_blank" class="font-semibold text-brand-600 hover:underline break-all">${escHtml(p.reference_url || '')}</a></div>
+                  ${p.industry ? `<div><div class="text-xs text-gray-500 mb-1">業種</div><div>${getIndustryBadge(p.industry)}</div></div>` : ''}
+                  ${p.main_services ? `<div><div class="text-xs text-gray-500 mb-1">主力サービス・商品</div><div class="font-semibold text-gray-900 text-sm">${escHtml(p.main_services)}</div></div>` : ''}
+                  ${p.site_goals ? `<div class="sm:col-span-2"><div class="text-xs text-gray-500 mb-1">サイトの目的</div><div class="flex flex-wrap gap-1.5 mt-1">${getSiteGoalBadges(p.site_goals)}</div></div>` : ''}
+                  ${p.additional_notes ? `<div class="sm:col-span-2"><div class="text-xs text-gray-500 mb-1">補足情報</div><div class="text-gray-700 text-sm">${escHtml(p.additional_notes)}</div></div>` : ''}
+                </div>
+              </div>
+
+              <!-- Pipeline Progress -->
+              <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
+                <h3 class="font-bold text-gray-900 mb-4"><i class="fas fa-diagram-project mr-2 text-brand-600"></i>パイプライン進捗</h3>
+                <div class="space-y-4">
+                  ${renderPipelineStep('Discovery Agent', 'discovery', p.status, logs)}
+                  ${renderPipelineStep('Analyzer Agent', 'analyzer', p.status, logs)}
+                  ${renderPipelineStep('Builder Agent', 'builder', p.status, logs)}
+                  ${renderPipelineStep('Evaluator Agent', 'evaluator', p.status, logs)}
+                </div>
+              </div>
+            </div>
+
+            <!-- Score Summary -->
+            <div class="space-y-6">
+              ${score ? `
+              <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-6 text-center">
+                <h3 class="font-bold text-gray-900 mb-4">品質スコア</h3>
+                <div class="relative w-32 h-32 mx-auto mb-4">
+                  <svg class="w-full h-full -rotate-90" viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="42" fill="none" stroke="#f3f4f6" stroke-width="8"/>
+                    <circle cx="50" cy="50" r="42" fill="none" stroke="${score.total_score >= 88 ? '#10b981' : '#f59e0b'}" stroke-width="8" stroke-linecap="round"
+                      stroke-dasharray="${2 * Math.PI * 42}" stroke-dashoffset="${2 * Math.PI * 42 * (1 - score.total_score / 100)}" class="score-ring"/>
+                  </svg>
+                  <div class="absolute inset-0 flex flex-col items-center justify-center">
+                    <span class="text-3xl font-extrabold ${score.total_score >= 88 ? 'text-emerald-600' : 'text-orange-600'}">${score.total_score}</span>
+                    <span class="text-xs text-gray-500">/ 100</span>
+                  </div>
+                </div>
+                <div class="${score.passed ? 'bg-emerald-100 text-emerald-700' : 'bg-orange-100 text-orange-700'} text-sm font-bold px-3 py-1 rounded-full inline-flex items-center gap-1">
+                  <i class="fas ${score.passed ? 'fa-check-circle' : 'fa-exclamation-triangle'}"></i>
+                  ${score.passed ? '合格' : '改善必要'}
+                </div>
+              </div>
+              ` : `
+              <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-6 text-center">
+                <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <i class="fas fa-chart-line text-gray-300 text-xl"></i>
+                </div>
+                <p class="text-gray-500 text-sm">評価スコアは生成完了後に表示されます</p>
+              </div>
+              `}
+
+              <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
+                <h3 class="font-bold text-gray-900 mb-3 text-sm">メタ情報</h3>
+                <div class="space-y-3 text-sm">
+                  <div class="flex justify-between"><span class="text-gray-500">プロジェクトID</span><span class="font-mono text-xs text-gray-700 break-all">${p.id.substring(0,8)}...</span></div>
+                  <div class="flex justify-between"><span class="text-gray-500">申込日時</span><span class="text-gray-700">${formatDate(p.created_at)}</span></div>
+                  <div class="flex justify-between"><span class="text-gray-500">更新日時</span><span class="text-gray-700">${formatDate(p.updated_at)}</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab: Business Profile -->
+        <div id="tabProfile" class="tab-content hidden">
+          ${profile ? `
+          <div class="grid lg:grid-cols-2 gap-6">
+            <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
+              <h3 class="font-bold text-gray-900 mb-4 flex items-center gap-2">
+                <span class="w-3 h-3 bg-blue-500 rounded-full"></span>Inferred Data（推定情報）
+              </h3>
+              <div class="space-y-4">
+                <div><div class="text-xs text-gray-500 mb-1">業種</div><div class="font-semibold text-gray-900">${escHtml(profile.industry || '-')}<span class="ml-2 text-xs text-blue-600">信頼度: ${Math.round((profile.industry_confidence || 0) * 100)}%</span></div></div>
+                <div><div class="text-xs text-gray-500 mb-1">事業形態</div><div class="font-semibold text-gray-900">${escHtml(profile.business_type || '-')}</div></div>
+                <div><div class="text-xs text-gray-500 mb-1">サービスエリア</div><div class="font-semibold text-gray-900">${escHtml(profile.service_area || '-')}</div></div>
+              </div>
+            </div>
+            <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
+              <h3 class="font-bold text-gray-900 mb-4 flex items-center gap-2">
+                <span class="w-3 h-3 bg-orange-500 rounded-full"></span>Assumed Data（仮説情報）
+                <span class="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full">要確認</span>
+              </h3>
+              <div class="space-y-4">
+                <div><div class="text-xs text-gray-500 mb-1">想定顧客層</div><div class="font-semibold text-gray-900">${escHtml(profile.target_customer || '-')}</div></div>
+                <div><div class="text-xs text-gray-500 mb-1">主な課題</div><div class="font-semibold text-gray-900">${escHtml(profile.main_pain_point || '-')}</div></div>
+                <div><div class="text-xs text-gray-500 mb-1">提供価値</div><div class="font-semibold text-gray-900">${escHtml(profile.value_proposition || '-')}</div></div>
+                <div><div class="text-xs text-gray-500 mb-1">ブランドトーン</div><div class="font-semibold text-gray-900 capitalize">${escHtml(profile.brand_tone || '-')}</div></div>
+              </div>
+            </div>
+          </div>
+          ` : `<div class="bg-white rounded-xl border border-gray-100 shadow-sm p-12 text-center"><p class="text-gray-500">事業プロファイルはまだ生成されていません</p></div>`}
+        </div>
+
+        <!-- Tab: Reference Analysis -->
+        <div id="tabAnalysis" class="tab-content hidden">
+          ${analysis ? `
+          <div class="grid lg:grid-cols-2 gap-6">
+            <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
+              <h3 class="font-bold text-gray-900 mb-4"><i class="fas fa-sitemap mr-2 text-purple-600"></i>ページ構造</h3>
+              <div class="mb-3"><span class="text-xs text-gray-500">ページタイプ:</span> <span class="font-semibold capitalize">${escHtml(analysis.page_type || '-')}</span></div>
+              <div class="space-y-2">
+                ${renderSections(analysis.sections_json)}
+              </div>
+            </div>
+            <div class="space-y-6">
+              <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
+                <h3 class="font-bold text-gray-900 mb-4"><i class="fas fa-palette mr-2 text-pink-600"></i>配色パレット</h3>
+                ${renderColorPalette(analysis.color_palette_json)}
+              </div>
+              <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
+                <h3 class="font-bold text-gray-900 mb-4"><i class="fas fa-font mr-2 text-blue-600"></i>UIパターン</h3>
+                ${renderUIPatterns(analysis.ui_patterns_json)}
+              </div>
+            </div>
+          </div>
+          ` : `<div class="bg-white rounded-xl border border-gray-100 shadow-sm p-12 text-center"><p class="text-gray-500">参考サイト分析はまだ完了していません</p></div>`}
+        </div>
+
+        <!-- Tab: Quality Score -->
+        <div id="tabScore" class="tab-content hidden">
+          ${score ? `
+          <div class="grid lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-2 bg-white rounded-xl border border-gray-100 shadow-sm p-6">
+              <h3 class="font-bold text-gray-900 mb-6">品質スコア内訳（第${score.iteration || 1}回評価）</h3>
+              <div class="space-y-5">
+                ${renderScoreBar('構造再現度', score.structure_score, 20, '#6366f1')}
+                ${renderScoreBar('顧客適合性', score.relevance_score, 20, '#8b5cf6')}
+                ${renderScoreBar('営業訴求力', score.sales_score, 15, '#f97316')}
+                ${renderScoreBar('情報設計', score.info_design_score, 15, '#3b82f6')}
+                ${renderScoreBar('モバイル最適化', score.mobile_score, 10, '#10b981')}
+                ${renderScoreBar('実装品質', score.code_quality_score, 10, '#6b7280')}
+                ${renderScoreBar('著作権クリア', score.copyright_score, 10, '#ef4444')}
+              </div>
+              <div class="mt-6 pt-6 border-t border-gray-100 flex items-center justify-between">
+                <span class="text-lg font-bold text-gray-900">総合スコア</span>
+                <div class="flex items-center gap-2">
+                  <span class="text-3xl font-extrabold ${score.total_score >= 88 ? 'text-emerald-600' : 'text-orange-600'}">${score.total_score}</span>
+                  <span class="text-gray-400">/ 100</span>
+                  <span class="ml-2 ${score.passed ? 'bg-emerald-100 text-emerald-700' : 'bg-orange-100 text-orange-700'} text-xs font-bold px-2 py-1 rounded-full">${score.passed ? '合格' : '改善必要'}</span>
+                </div>
+              </div>
+            </div>
+            <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
+              <h3 class="font-bold text-gray-900 mb-4">フィードバック</h3>
+              ${renderFeedback(score.feedback_json)}
+            </div>
+          </div>
+          ` : `<div class="bg-white rounded-xl border border-gray-100 shadow-sm p-12 text-center"><p class="text-gray-500">品質評価はまだ実行されていません</p></div>`}
+        </div>
+
+        <!-- Tab: Process Logs -->
+        <div id="tabLogs" class="tab-content hidden">
+          <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+            <div class="divide-y divide-gray-50">
+              ${logs.length ? logs.sort((a,b) => new Date(b.created_at) - new Date(a.created_at)).map(l => `
+                <div class="px-6 py-4 flex items-start gap-4">
+                  <div class="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${
+                    l.status === 'completed' ? 'bg-emerald-100' : l.status === 'failed' ? 'bg-red-100' : 'bg-yellow-100'
+                  }">
+                    <i class="fas ${
+                      l.status === 'completed' ? 'fa-check text-emerald-600' : l.status === 'failed' ? 'fa-times text-red-600' : 'fa-spinner fa-spin text-yellow-600'
+                    } text-sm"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-2 mb-1">
+                      <span class="font-semibold text-gray-900 text-sm capitalize">${escHtml(l.agent_name || '')}</span>
+                      <span class="text-xs px-2 py-0.5 rounded-full ${
+                        l.status === 'completed' ? 'bg-emerald-50 text-emerald-700' : l.status === 'failed' ? 'bg-red-50 text-red-700' : 'bg-yellow-50 text-yellow-700'
+                      }">${l.status}</span>
+                      ${l.score ? `<span class="text-xs font-bold text-brand-600">${l.score}点</span>` : ''}
+                    </div>
+                    <p class="text-sm text-gray-600">${escHtml(l.message || '')}</p>
+                    <p class="text-xs text-gray-400 mt-1">${formatDate(l.created_at)}</p>
+                  </div>
+                </div>
+              `).join('') : '<div class="p-8 text-center text-gray-400">処理ログはまだありません</div>'}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // ========== Render Helpers ==========
+    function renderPipelineStep(name, agent, projectStatus, logs) {
+      const agentLogs = logs.filter(l => l.agent_name === agent);
+      const completed = agentLogs.some(l => l.status === 'completed');
+      const started = agentLogs.some(l => l.status === 'started');
+      const failed = agentLogs.some(l => l.status === 'failed');
+
+      let statusClass, icon;
+      if (failed) { statusClass = 'bg-red-100'; icon = '<i class="fas fa-times text-red-600 text-sm"></i>'; }
+      else if (completed) { statusClass = 'bg-emerald-100'; icon = '<i class="fas fa-check text-emerald-600 text-sm"></i>'; }
+      else if (started) { statusClass = 'bg-yellow-100'; icon = '<i class="fas fa-spinner fa-spin text-yellow-600 text-sm"></i>'; }
+      else { statusClass = 'bg-gray-100'; icon = '<i class="fas fa-circle text-gray-300 text-xs"></i>'; }
+
+      return `
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-full ${statusClass} flex items-center justify-center flex-shrink-0">${icon}</div>
+          <div class="flex-1"><span class="text-sm font-medium text-gray-900">${name}</span></div>
+          <span class="text-xs ${completed ? 'text-emerald-600' : started ? 'text-yellow-600' : 'text-gray-400'}">${completed ? '完了' : started ? '処理中' : '待機中'}</span>
+        </div>
+      `;
+    }
+
+    function renderScoreBar(label, value, max, color) {
+      const pct = max > 0 ? (value / max) * 100 : 0;
+      return `
+        <div>
+          <div class="flex justify-between text-sm mb-1.5"><span class="text-gray-700 font-medium">${label}</span><span class="font-bold" style="color:${color}">${value} / ${max}</span></div>
+          <div class="h-3 bg-gray-100 rounded-full overflow-hidden"><div class="h-full rounded-full transition-all duration-1000" style="width:${pct}%;background:${color}"></div></div>
+        </div>
+      `;
+    }
+
+    function renderSections(json) {
+      try {
+        const sections = JSON.parse(json);
+        return sections.map(s => `
+          <div class="flex items-center gap-3 bg-gray-50 rounded-lg p-3">
+            <span class="w-7 h-7 bg-purple-100 text-purple-600 rounded-md flex items-center justify-center text-xs font-bold">${s.order}</span>
+            <div><div class="text-sm font-semibold capitalize text-gray-900">${s.type}</div><div class="text-xs text-gray-500">${s.layout || ''}</div></div>
+          </div>
+        `).join('');
+      } catch { return '<p class="text-sm text-gray-400">データなし</p>'; }
+    }
+
+    function renderColorPalette(json) {
+      try {
+        const colors = JSON.parse(json);
+        return `<div class="grid grid-cols-5 gap-2">${
+          Object.entries(colors).map(([name, hex]) => `
+            <div class="text-center">
+              <div class="w-full aspect-square rounded-lg border border-gray-200 mb-1" style="background:${hex}"></div>
+              <div class="text-[10px] text-gray-500 capitalize">${name}</div>
+              <div class="text-[10px] font-mono text-gray-400">${hex}</div>
+            </div>
+          `).join('')
+        }</div>`;
+      } catch { return '<p class="text-sm text-gray-400">データなし</p>'; }
+    }
+
+    function renderUIPatterns(json) {
+      try {
+        const patterns = JSON.parse(json);
+        return `<div class="space-y-2">${
+          Object.entries(patterns).map(([k, v]) => `
+            <div class="flex justify-between items-center bg-gray-50 rounded-lg px-3 py-2">
+              <span class="text-sm font-medium text-gray-700 capitalize">${k}</span>
+              <span class="text-xs text-gray-500">${v}</span>
+            </div>
+          `).join('')
+        }</div>`;
+      } catch { return '<p class="text-sm text-gray-400">データなし</p>'; }
+    }
+
+    function renderFeedback(json) {
+      try {
+        const fb = JSON.parse(json);
+        let html = '';
+        if (fb.strengths?.length) {
+          html += '<div class="mb-4"><div class="text-xs font-semibold text-emerald-600 mb-2"><i class="fas fa-thumbs-up mr-1"></i>強み</div>';
+          html += fb.strengths.map(s => `<div class="text-sm text-gray-600 flex items-start gap-2 mb-1"><i class="fas fa-check text-emerald-500 mt-0.5 text-xs"></i>${escHtml(s)}</div>`).join('');
+          html += '</div>';
+        }
+        if (fb.improvements?.length) {
+          html += '<div><div class="text-xs font-semibold text-orange-600 mb-2"><i class="fas fa-lightbulb mr-1"></i>改善点</div>';
+          html += fb.improvements.map(s => `<div class="text-sm text-gray-600 flex items-start gap-2 mb-1"><i class="fas fa-arrow-right text-orange-500 mt-0.5 text-xs"></i>${escHtml(s)}</div>`).join('');
+          html += '</div>';
+        }
+        return html || '<p class="text-sm text-gray-400">フィードバックなし</p>';
+      } catch { return '<p class="text-sm text-gray-400">データなし</p>'; }
+    }
+
+    function switchTab(btn, tabId) {
+      document.querySelectorAll('.tab-btn').forEach(b => {
+        b.classList.remove('active');
+        b.classList.add('border-transparent', 'text-gray-500');
+      });
+      btn.classList.add('active');
+      btn.classList.remove('border-transparent', 'text-gray-500');
+      
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
+      document.getElementById(tabId).classList.remove('hidden');
+    }
+
+    // ========== Actions ==========
+    async function approveProject(id) {
+      if (!confirm('この案件を承認しますか？')) return;
+      try {
+        await API.update('projects', id, { status: 'APPROVED', completed_at: new Date().toISOString() });
+        await API.create('process_logs', {
+          project_id: id, agent_name: 'evaluator', status: 'completed',
+          message: '管理者により承認されました'
+        });
+        showToast('案件を承認しました', 'success');
+        openDetail(id);
+      } catch (err) {
+        showToast('エラーが発生しました', 'error');
+      }
+    }
+
+    async function rejectProject(id) {
+      const reason = prompt('差戻し理由を入力してください:');
+      if (!reason) return;
+      try {
+        await API.update('projects', id, { status: 'BUILDING' });
+        await API.create('process_logs', {
+          project_id: id, agent_name: 'evaluator', status: 'failed',
+          message: `差戻し: ${reason}`
+        });
+        showToast('案件を差戻しました', 'warning');
+        openDetail(id);
+      } catch (err) {
+        showToast('エラーが発生しました', 'error');
+      }
+    }
+
+    async function retryProject(id) {
+      if (!confirm('この案件を再実行しますか？')) return;
+      try {
+        await API.update('projects', id, { status: 'SUBMITTED' });
+        await API.create('process_logs', {
+          project_id: id, agent_name: 'discovery', status: 'started',
+          message: '再実行: 事業情報探索を開始'
+        });
+        showToast('案件の再実行を開始しました', 'info');
+        openDetail(id);
+      } catch (err) {
+        showToast('エラーが発生しました', 'error');
+      }
+    }
+
+    function refreshData() {
+      const currentView = document.querySelector('.view-content:not(.hidden)')?.id?.replace('view-', '');
+      if (currentView === 'dashboard') loadDashboard();
+      else if (currentView === 'projects') loadProjects();
+      else if (currentView === 'detail' && currentProjectId) openDetail(currentProjectId);
+      showToast('データを更新しました', 'info');
+    }
+
+    function escHtml(str) {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+  </script>
+</body>
+</html>
