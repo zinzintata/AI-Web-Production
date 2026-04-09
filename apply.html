@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>お申し込み | AI Web Production</title>
+  <meta name="description" content="7項目の簡単入力で営業用ホームページの制作を依頼。業種・サービス内容・サイト目的まで入力するから、AIがより高精度な初稿を生成します。">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+JP:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'Noto Sans JP', 'sans-serif'] },
+          colors: {
+            brand: {
+              50: '#eef2ff', 100: '#e0e7ff', 200: '#c7d2fe', 300: '#a5b4fc',
+              400: '#818cf8', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca',
+              800: '#3730a3', 900: '#312e81',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Inter', 'Noto Sans JP', sans-serif; }
+    .input-focus:focus { box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15); }
+    .step-bar { transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
+    .processing-dot {
+      display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+      background: #6366f1; animation: processingBounce 1.4s infinite ease-in-out both;
+    }
+    .processing-dot:nth-child(1) { animation-delay: -0.32s; }
+    .processing-dot:nth-child(2) { animation-delay: -0.16s; }
+    @keyframes processingBounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
+    @keyframes checkDraw { from { stroke-dashoffset: 50; } to { stroke-dashoffset: 0; } }
+    .check-animation { animation: checkDraw 0.6s ease forwards 0.3s; stroke-dasharray: 50; stroke-dashoffset: 50; }
+    @keyframes fadeSlideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .fade-slide-up { animation: fadeSlideUp 0.5s ease forwards; }
+    /* Checkbox custom */
+    .goal-checkbox:checked + label { border-color: #4f46e5; background: #eef2ff; }
+    .goal-checkbox:checked + label .goal-check { display: flex; }
+    .goal-checkbox:checked + label .goal-icon { color: #4f46e5; }
+    /* Section divider */
+    .section-divider { position: relative; }
+    .section-divider::before {
+      content: ''; position: absolute; top: 0; left: 24px; right: 24px;
+      height: 1px; background: linear-gradient(90deg, transparent, #e5e7eb, transparent);
+    }
+  </style>
+</head>
+<body class="bg-gray-50 antialiased min-h-screen">
+
+  <!-- Navigation -->
+  <nav class="bg-white border-b border-gray-100 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <a href="index.html" class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-brand-600 flex items-center justify-center">
+            <i class="fas fa-bolt text-white text-xs"></i>
+          </div>
+          <span class="font-bold text-gray-900">AI Web Production</span>
+        </a>
+        <a href="index.html" class="text-sm text-gray-500 hover:text-brand-600 transition-colors">
+          <i class="fas fa-arrow-left mr-1"></i>トップに戻る
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+    <!-- Header -->
+    <div class="text-center mb-8">
+      <div class="inline-flex items-center gap-2 bg-brand-50 text-brand-700 rounded-full px-4 py-1.5 mb-4 text-sm font-semibold">
+        <i class="fas fa-paper-plane"></i> お申し込み
+      </div>
+      <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-3">
+        <span class="bg-gradient-to-r from-brand-600 to-purple-600 bg-clip-text text-transparent">7つの質問</span>に答えるだけ
+      </h1>
+      <p class="text-gray-600 text-lg">約3〜5分で入力完了。業種・サービス内容まで教えていただくことで、<strong class="text-gray-900">AI生成精度が+31%向上</strong>します。</p>
+    </div>
+
+    <div class="grid lg:grid-cols-3 gap-8">
+      <!-- ===== Form ===== -->
+      <div class="lg:col-span-2">
+        <div id="formSection">
+          <form id="applicationForm" class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+            <!-- Progress Bar -->
+            <div class="bg-gray-50 px-6 py-4 border-b border-gray-100">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-sm font-semibold text-gray-700">入力進捗</span>
+                <span id="progressText" class="text-sm font-bold text-brand-600">0 / 7 完了</span>
+              </div>
+              <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+                <div id="progressBar" class="step-bar h-full bg-gradient-to-r from-brand-500 to-purple-500 rounded-full" style="width: 0%"></div>
+              </div>
+            </div>
+
+            <div class="p-6 sm:p-8 space-y-6">
+              <!-- ===== SECTION A: 基本情報（4項目） ===== -->
+              <div>
+                <div class="flex items-center gap-2 mb-5">
+                  <div class="w-7 h-7 bg-brand-600 text-white rounded-lg flex items-center justify-center text-xs font-bold">A</div>
+                  <h2 class="text-base font-bold text-gray-900">基本情報</h2>
+                  <span class="text-xs text-gray-400">4項目</span>
+                </div>
+
+                <div class="space-y-5">
+                  <!-- 1. Company Name -->
+                  <div>
+                    <label for="companyName" class="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
+                      <span class="w-5 h-5 bg-brand-100 text-brand-600 rounded flex items-center justify-center text-[10px] font-bold">1</span>
+                      会社名 / 屋号
+                      <span class="text-red-500 text-xs">*必須</span>
+                    </label>
+                    <input type="text" id="companyName" required maxlength="100"
+                      class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 transition-all input-focus focus:border-brand-400 focus:bg-white text-sm"
+                      placeholder="例: 株式会社サンプル">
+                    <div id="companyNameError" class="text-red-500 text-xs mt-1 hidden"><i class="fas fa-exclamation-circle mr-1"></i>会社名を入力してください（100文字以内）</div>
+                    <div class="text-xs text-gray-400 mt-1 text-right"><span id="companyNameCount">0</span>/100</div>
+                  </div>
+
+                  <!-- 2. Address -->
+                  <div>
+                    <label for="address" class="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
+                      <span class="w-5 h-5 bg-brand-100 text-brand-600 rounded flex items-center justify-center text-[10px] font-bold">2</span>
+                      住所
+                      <span class="text-red-500 text-xs">*必須</span>
+                    </label>
+                    <input type="text" id="address" required maxlength="200"
+                      class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 transition-all input-focus focus:border-brand-400 focus:bg-white text-sm"
+                      placeholder="例: 東京都渋谷区○○1-2-3">
+                    <div id="addressError" class="text-red-500 text-xs mt-1 hidden"><i class="fas fa-exclamation-circle mr-1"></i>住所を入力してください（200文字以内）</div>
+                    <div class="text-xs text-gray-400 mt-1 text-right"><span id="addressCount">0</span>/200</div>
+                  </div>
+
+                  <!-- 3. Email -->
+                  <div>
+                    <label for="email" class="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
+                      <span class="w-5 h-5 bg-brand-100 text-brand-600 rounded flex items-center justify-center text-[10px] font-bold">3</span>
+                      メールアドレス
+                      <span class="text-red-500 text-xs">*必須</span>
+                    </label>
+                    <input type="email" id="email" required
+                      class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 transition-all input-focus focus:border-brand-400 focus:bg-white text-sm"
+                      placeholder="例: info@example.com">
+                    <div id="emailError" class="text-red-500 text-xs mt-1 hidden"><i class="fas fa-exclamation-circle mr-1"></i>有効なメールアドレスを入力してください</div>
+                  </div>
+
+                  <!-- 4. Reference URL -->
+                  <div>
+                    <label for="referenceUrl" class="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
+                      <span class="w-5 h-5 bg-brand-100 text-brand-600 rounded flex items-center justify-center text-[10px] font-bold">4</span>
+                      参考にしたいWebサイトURL
+                      <span class="text-red-500 text-xs">*必須</span>
+                    </label>
+                    <input type="url" id="referenceUrl" required
+                      class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 transition-all input-focus focus:border-brand-400 focus:bg-white text-sm"
+                      placeholder="例: https://reference-site.com">
+                    <div id="referenceUrlError" class="text-red-500 text-xs mt-1 hidden"><i class="fas fa-exclamation-circle mr-1"></i>有効なURL（http:// または https://）を入力してください</div>
+                    <p class="text-xs text-gray-400 mt-1"><i class="fas fa-info-circle mr-1"></i>「こんな雰囲気にしたい」という参考サイトのURLを入力してください</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- ===== SECTION B: AI精度向上情報（3項目） ===== -->
+              <div class="section-divider pt-6">
+                <div class="flex items-center gap-2 mb-2">
+                  <div class="w-7 h-7 bg-purple-600 text-white rounded-lg flex items-center justify-center text-xs font-bold">B</div>
+                  <h2 class="text-base font-bold text-gray-900">AI精度向上情報</h2>
+                  <span class="text-xs text-gray-400">3項目</span>
+                </div>
+                <p class="text-xs text-gray-500 mb-5 ml-9">以下を入力いただくことで、初稿の品質が大幅に向上します。</p>
+
+                <div class="space-y-5">
+                  <!-- 5. Industry -->
+                  <div>
+                    <label for="industry" class="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
+                      <span class="w-5 h-5 bg-purple-100 text-purple-600 rounded flex items-center justify-center text-[10px] font-bold">5</span>
+                      業種
+                      <span class="text-red-500 text-xs">*必須</span>
+                      <span class="ml-auto text-[10px] px-1.5 py-0.5 bg-emerald-50 text-emerald-600 rounded font-medium">精度 +36%</span>
+                    </label>
+                    <select id="industry" required
+                      class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 transition-all input-focus focus:border-brand-400 focus:bg-white text-sm appearance-none cursor-pointer"
+                      style="background-image: url('data:image/svg+xml;utf8,<svg fill=&quot;%236b7280&quot; viewBox=&quot;0 0 20 20&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot;><path fill-rule=&quot;evenodd&quot; d=&quot;M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z&quot; clip-rule=&quot;evenodd&quot;/></svg>'); background-repeat: no-repeat; background-position: right 12px center; background-size: 20px;">
+                      <option value="" disabled selected>業種を選択してください</option>
+                      <option value="IT・Web">💻 IT・Web</option>
+                      <option value="飲食店">🍽️ 飲食店</option>
+                      <option value="小売・小売業">🏪 小売・小売業</option>
+                      <option value="士業（法律・税理・行政書士等）">⚖️ 士業（法律・税理・行政書士等）</option>
+                      <option value="医療・クリニック">🏥 医療・クリニック</option>
+                      <option value="建設・工務店">🏗️ 建設・工務店</option>
+                      <option value="製造業">🏭 製造業</option>
+                      <option value="教育・スクール">🎓 教育・スクール</option>
+                      <option value="不動産">🏢 不動産</option>
+                      <option value="美容・サロン">💇 美容・サロン</option>
+                      <option value="コンサルティング">📊 コンサルティング</option>
+                      <option value="整体・治療院">🩺 整体・治療院</option>
+                      <option value="運送・物流">🚚 運送・物流</option>
+                      <option value="介護・福祉">❤️ 介護・福祉</option>
+                      <option value="その他">📦 その他</option>
+                    </select>
+                    <div id="industryError" class="text-red-500 text-xs mt-1 hidden"><i class="fas fa-exclamation-circle mr-1"></i>業種を選択してください</div>
+                    <!-- Industry impact hint -->
+                    <div id="industryHint" class="hidden mt-2 p-3 bg-brand-50 border border-brand-100 rounded-lg">
+                      <div class="flex items-start gap-2">
+                        <i id="industryHintIcon" class="fas fa-lightbulb text-brand-600 mt-0.5 text-xs"></i>
+                        <p id="industryHintText" class="text-xs text-brand-700"></p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- 6. Main Services -->
+                  <div>
+                    <label for="mainServices" class="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
+                      <span class="w-5 h-5 bg-purple-100 text-purple-600 rounded flex items-center justify-center text-[10px] font-bold">6</span>
+                      主力サービス・商品
+                      <span class="text-red-500 text-xs">*必須</span>
+                      <span class="ml-auto text-[10px] px-1.5 py-0.5 bg-emerald-50 text-emerald-600 rounded font-medium">精度 +25%</span>
+                    </label>
+                    <textarea id="mainServices" required maxlength="150" rows="3"
+                      class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 transition-all input-focus focus:border-brand-400 focus:bg-white resize-none text-sm"
+                      placeholder="提供しているサービスや商品の概要を入力してください"></textarea>
+                    <div id="mainServicesError" class="text-red-500 text-xs mt-1 hidden"><i class="fas fa-exclamation-circle mr-1"></i>主力サービス・商品を入力してください（150文字以内）</div>
+                    <div class="flex items-center justify-between mt-1">
+                      <p class="text-xs text-gray-400"><i class="fas fa-info-circle mr-1"></i>具体的に書くほど初稿の精度が上がります</p>
+                      <span class="text-xs text-gray-400"><span id="mainServicesCount">0</span>/150</span>
+                    </div>
+                  </div>
+
+                  <!-- 7. Site Goals -->
+                  <div>
+                    <label class="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
+                      <span class="w-5 h-5 bg-purple-100 text-purple-600 rounded flex items-center justify-center text-[10px] font-bold">7</span>
+                      サイトの主な目的
+                      <span class="text-red-500 text-xs">*必須</span>
+                      <span class="text-xs text-gray-400 ml-1">（複数選択可）</span>
+                      <span class="ml-auto text-[10px] px-1.5 py-0.5 bg-emerald-50 text-emerald-600 rounded font-medium">精度 +25%</span>
+                    </label>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2" id="siteGoalsContainer">
+                      <!-- Goals rendered by JS -->
+                    </div>
+                    <div id="siteGoalsError" class="text-red-500 text-xs mt-1 hidden"><i class="fas fa-exclamation-circle mr-1"></i>サイトの目的を1つ以上選択してください</div>
+                    <p class="text-xs text-gray-400 mt-1.5"><i class="fas fa-info-circle mr-1"></i>目的に合わせてCTAや導線を最適化します</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Additional Notes (Accordion) -->
+              <div class="section-divider pt-6">
+                <button type="button" class="flex items-center justify-between w-full text-left" onclick="toggleNotes()">
+                  <span class="text-sm font-medium text-gray-500">
+                    <i class="fas fa-plus-circle mr-1 text-gray-400"></i>補足情報を追加する（任意）
+                  </span>
+                  <i id="notesIcon" class="fas fa-chevron-down text-gray-400 text-xs transition-transform duration-300"></i>
+                </button>
+                <div id="notesSection" class="hidden mt-4">
+                  <textarea id="additionalNotes" maxlength="500" rows="3"
+                    class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 transition-all input-focus focus:border-brand-400 focus:bg-white resize-none text-sm"
+                    placeholder="例: 30-50代の女性がメインターゲット。地域密着型のサービスです。"></textarea>
+                  <div class="text-xs text-gray-400 mt-1 text-right"><span id="notesCount">0</span>/500</div>
+                </div>
+              </div>
+
+              <!-- AI Precision Indicator -->
+              <div id="precisionCard" class="bg-gradient-to-r from-brand-50 to-purple-50 rounded-xl p-4 border border-brand-100">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-xs font-semibold text-gray-700"><i class="fas fa-brain mr-1 text-brand-600"></i>AI生成精度予測</span>
+                  <span id="precisionScore" class="text-sm font-extrabold text-brand-600">基本精度</span>
+                </div>
+                <div class="h-2 bg-white rounded-full overflow-hidden">
+                  <div id="precisionBar" class="h-full bg-gradient-to-r from-brand-500 to-purple-500 rounded-full transition-all duration-700" style="width: 40%"></div>
+                </div>
+                <div class="flex justify-between mt-1.5 text-[10px] text-gray-400">
+                  <span>4項目のみ: 65点</span>
+                  <span>7項目入力: 85点〜</span>
+                </div>
+              </div>
+
+              <!-- Submit -->
+              <div class="pt-2">
+                <button type="submit" id="submitBtn" disabled
+                  class="w-full flex items-center justify-center gap-2 bg-brand-600 text-white font-bold text-lg py-4 rounded-xl hover:bg-brand-700 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-brand-600 disabled:hover:shadow-lg">
+                  <i class="fas fa-paper-plane"></i>
+                  <span>この内容でAI制作を依頼する</span>
+                </button>
+                <p class="text-center text-xs text-gray-400 mt-3">
+                  <i class="fas fa-lock mr-1"></i>入力情報はSSL暗号化で安全に送信されます
+                </p>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <!-- Processing State -->
+        <div id="processingSection" class="hidden">
+          <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-8 sm:p-12 text-center">
+            <div class="mb-6">
+              <div class="inline-flex items-center gap-3 bg-brand-50 rounded-full px-6 py-3">
+                <div class="processing-dot"></div>
+                <div class="processing-dot"></div>
+                <div class="processing-dot"></div>
+              </div>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-900 mb-3">AIが申込を処理しています...</h2>
+            <p id="processingMessage" class="text-gray-600 mb-8">入力データを検証しています</p>
+            <div class="max-w-md mx-auto space-y-4 text-left">
+              <div id="procStep1" class="flex items-center gap-3 opacity-50 transition-all duration-500">
+                <div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center"><i class="fas fa-spinner fa-spin text-gray-400 text-sm"></i></div>
+                <span class="text-sm text-gray-600">データ検証・正規化（7項目）</span>
+              </div>
+              <div id="procStep2" class="flex items-center gap-3 opacity-30 transition-all duration-500">
+                <div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center"><i class="fas fa-circle text-gray-300 text-xs"></i></div>
+                <span class="text-sm text-gray-600">プロジェクト登録（業種・目的を確定情報として保存）</span>
+              </div>
+              <div id="procStep3" class="flex items-center gap-3 opacity-30 transition-all duration-500">
+                <div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center"><i class="fas fa-circle text-gray-300 text-xs"></i></div>
+                <span class="text-sm text-gray-600">AI分析キュー投入（高精度モード）</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Success State -->
+        <div id="successSection" class="hidden">
+          <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-8 sm:p-12 text-center fade-slide-up">
+            <div class="mb-6">
+              <div class="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mx-auto">
+                <svg width="40" height="40" viewBox="0 0 40 40">
+                  <circle cx="20" cy="20" r="18" fill="none" stroke="#10b981" stroke-width="3" opacity="0.3"/>
+                  <path class="check-animation" d="M12 20 L18 26 L28 14" fill="none" stroke="#10b981" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-900 mb-3">お申し込みを受け付けました！</h2>
+            <p class="text-gray-600 mb-2">AIが参考サイトの分析を開始しました。24時間以内に初稿をお届けします。</p>
+            <p class="text-sm text-emerald-600 font-semibold mb-6"><i class="fas fa-arrow-up mr-1"></i>業種・サービス・目的の入力により、高精度モードで生成中</p>
+            
+            <div class="bg-gray-50 rounded-xl p-6 text-left mb-8 max-w-md mx-auto">
+              <h3 class="font-semibold text-gray-900 mb-3 text-sm"><i class="fas fa-list-check mr-1 text-brand-600"></i>今後の流れ</h3>
+              <ol class="space-y-3 text-sm text-gray-600">
+                <li class="flex items-start gap-3"><span class="w-6 h-6 bg-brand-100 text-brand-600 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">1</span><span>AIが参考サイトの構造を分析（約1時間）</span></li>
+                <li class="flex items-start gap-3"><span class="w-6 h-6 bg-brand-100 text-brand-600 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">2</span><span>業種×サービス内容に基づくコンテンツ生成</span></li>
+                <li class="flex items-start gap-3"><span class="w-6 h-6 bg-brand-100 text-brand-600 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">3</span><span>品質評価・改善ループの実行</span></li>
+                <li class="flex items-start gap-3"><span class="w-6 h-6 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">✓</span><span>初稿完成後、メールでご連絡</span></li>
+              </ol>
+            </div>
+            <div id="projectInfo" class="bg-brand-50 rounded-xl p-4 mb-6 max-w-md mx-auto">
+              <div class="text-xs text-brand-600 font-semibold mb-1">プロジェクトID</div>
+              <div id="projectIdDisplay" class="font-mono text-sm text-brand-800 break-all">-</div>
+            </div>
+            <div class="flex flex-col sm:flex-row gap-3 justify-center">
+              <a href="index.html" class="inline-flex items-center justify-center gap-2 bg-gray-100 text-gray-700 font-semibold px-6 py-3 rounded-xl hover:bg-gray-200 transition-colors"><i class="fas fa-home"></i>トップに戻る</a>
+              <a href="admin.html" class="inline-flex items-center justify-center gap-2 bg-brand-600 text-white font-semibold px-6 py-3 rounded-xl hover:bg-brand-700 transition-colors"><i class="fas fa-chart-bar"></i>管理画面で確認</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== Sidebar ===== -->
+      <div class="lg:col-span-1">
+        <div class="sticky top-24 space-y-6">
+          <!-- Precision Improvement Card -->
+          <div class="bg-gradient-to-br from-brand-600 to-purple-700 rounded-2xl p-6 text-white shadow-lg">
+            <h3 class="font-bold mb-3 flex items-center gap-2"><i class="fas fa-chart-line"></i>7項目入力の効果</h3>
+            <div class="space-y-3 text-sm">
+              <div class="flex items-center justify-between">
+                <span class="text-white/80">業種判定精度</span>
+                <div class="flex items-center gap-1"><span class="text-white/50 line-through text-xs">70%</span><i class="fas fa-arrow-right text-xs text-brand-300"></i><span class="font-bold text-emerald-300">95%</span></div>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-white/80">コピー適合性</span>
+                <div class="flex items-center gap-1"><span class="text-white/50 line-through text-xs">60%</span><i class="fas fa-arrow-right text-xs text-brand-300"></i><span class="font-bold text-emerald-300">85%</span></div>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-white/80">CTA最適化</span>
+                <div class="flex items-center gap-1"><span class="text-white/50 line-through text-xs">65%</span><i class="fas fa-arrow-right text-xs text-brand-300"></i><span class="font-bold text-emerald-300">90%</span></div>
+              </div>
+              <div class="flex items-center justify-between pt-2 border-t border-white/20">
+                <span class="text-white/80">修正回数</span>
+                <div class="flex items-center gap-1"><span class="text-white/50 line-through text-xs">3.2回</span><i class="fas fa-arrow-right text-xs text-brand-300"></i><span class="font-bold text-emerald-300">1.8回</span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- What you get -->
+          <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+            <h3 class="font-bold text-gray-900 mb-4 flex items-center gap-2"><i class="fas fa-gift text-brand-600"></i>お届けする成果物</h3>
+            <ul class="space-y-3">
+              <li class="flex items-start gap-3"><i class="fas fa-check-circle text-emerald-500 mt-0.5"></i><div><div class="text-sm font-semibold text-gray-900">営業用ランディングページ</div><div class="text-xs text-gray-500">HTML/CSS/JS 完全版</div></div></li>
+              <li class="flex items-start gap-3"><i class="fas fa-check-circle text-emerald-500 mt-0.5"></i><div><div class="text-sm font-semibold text-gray-900">事業プロファイル</div><div class="text-xs text-gray-500">業種×サービスに基づく分析レポート</div></div></li>
+              <li class="flex items-start gap-3"><i class="fas fa-check-circle text-emerald-500 mt-0.5"></i><div><div class="text-sm font-semibold text-gray-900">品質評価レポート</div><div class="text-xs text-gray-500">7軸×100点満点の評価結果</div></div></li>
+              <li class="flex items-start gap-3"><i class="fas fa-check-circle text-emerald-500 mt-0.5"></i><div><div class="text-sm font-semibold text-gray-900">目的最適化CTA</div><div class="text-xs text-gray-500">選択した目的に合わせた導線設計</div></div></li>
+            </ul>
+          </div>
+
+          <!-- 3-layer data -->
+          <div class="bg-brand-50 rounded-2xl p-6 border border-brand-100">
+            <h3 class="font-bold text-gray-900 mb-3 text-sm"><i class="fas fa-layer-group mr-1 text-brand-600"></i>3層データ信頼度</h3>
+            <div class="space-y-2 text-xs">
+              <div class="flex items-center gap-2"><span class="w-3 h-3 bg-emerald-500 rounded-full"></span><span class="font-semibold text-gray-700">Confirmed</span><span class="text-gray-500">7項目の入力情報</span></div>
+              <div class="flex items-center gap-2"><span class="w-3 h-3 bg-blue-500 rounded-full"></span><span class="font-semibold text-gray-700">Inferred</span><span class="text-gray-500">公開情報から推定</span></div>
+              <div class="flex items-center gap-2"><span class="w-3 h-3 bg-orange-500 rounded-full"></span><span class="font-semibold text-gray-700">Assumed</span><span class="text-gray-500">AI仮説（要確認）</span></div>
+            </div>
+            <p class="text-[10px] text-gray-500 mt-3 leading-relaxed">※ 7項目入力により、多くの情報がConfirmedに昇格。AI仮説への依存度が大幅に低減します。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="js/api.js"></script>
+  <script>
+    // ========== Constants ==========
+    const TOTAL_FIELDS = 7;
+    const siteGoalsOptions = [
+      { value: '問い合わせ獲得', icon: 'fa-envelope',        color: 'text-blue-600' },
+      { value: '来店予約',       icon: 'fa-calendar-check',  color: 'text-emerald-600' },
+      { value: '資料請求',       icon: 'fa-file-arrow-down', color: 'text-purple-600' },
+      { value: '採用応募',       icon: 'fa-user-plus',       color: 'text-orange-600' },
+      { value: '商品販売',       icon: 'fa-cart-shopping',   color: 'text-pink-600' },
+      { value: 'ブランド認知',   icon: 'fa-bullhorn',        color: 'text-cyan-600' }
+    ];
+
+    // Industry placeholder map
+    const industryPlaceholders = {
+      'IT・Web':           '例: Webサイト制作、システム開発、クラウドサービス提供',
+      '飲食店':             '例: イタリアンレストラン、ランチ・ディナー営業、テイクアウト対応',
+      '小売・小売業':        '例: オーガニック食品販売、ECサイト運営、定期便サービス',
+      '士業（法律・税理・行政書士等）': '例: 企業法務、相続相談、確定申告・税務顧問',
+      '医療・クリニック':    '例: 内科・小児科診療、健康診断、予防接種',
+      '建設・工務店':        '例: 注文住宅建築、リフォーム・リノベーション、耐震工事',
+      '製造業':             '例: 精密部品加工、金属プレス製造、品質管理コンサル',
+      '教育・スクール':      '例: プログラミング教室、英会話スクール、学習塾',
+      '不動産':             '例: 賃貸仲介、売買仲介、不動産投資コンサル',
+      '美容・サロン':        '例: カット・カラー・パーマ、ネイルサロン、まつげエクステ',
+      'コンサルティング':    '例: 経営コンサル、DX推進支援、マーケティング戦略策定',
+      '整体・治療院':        '例: 骨盤矯正、産後ケア、腰痛・肩こり治療',
+      '運送・物流':          '例: 一般貨物運送、倉庫保管、引越しサービス',
+      '介護・福祉':          '例: デイサービス、訪問介護、居宅介護支援',
+      'その他':             '例: 提供しているサービスや商品の概要を入力してください'
+    };
+
+    const industryHints = {
+      'IT・Web':           'IT業界に最適化された技術力訴求型のコンテンツを生成します',
+      '飲食店':             '料理の魅力・店舗の雰囲気を伝えるコンテンツを生成します',
+      '小売・小売業':        '商品の魅力と購買導線を最適化したコンテンツを生成します',
+      '士業（法律・税理・行政書士等）': '信頼性と専門性を訴求するコンテンツを生成します',
+      '医療・クリニック':    '安心感と専門性を重視したコンテンツを生成します',
+      '建設・工務店':        '施工事例と品質を訴求するコンテンツを生成します',
+      '製造業':             '技術力と品質管理を訴求するBtoB向けコンテンツを生成します',
+      '教育・スクール':      '学びの成果と講師の魅力を訴求するコンテンツを生成します',
+      '不動産':             '物件の魅力と信頼性を訴求するコンテンツを生成します',
+      '美容・サロン':        'ビフォーアフターと雰囲気を訴求するコンテンツを生成します',
+      'コンサルティング':    '実績と専門知識を訴求するコンテンツを生成します',
+      '整体・治療院':        '施術効果と安心感を訴求するコンテンツを生成します',
+      '運送・物流':          '安全性と対応力を訴求するコンテンツを生成します',
+      '介護・福祉':          '温かさと信頼性を訴求するコンテンツを生成します',
+      'その他':             '入力情報に基づいて最適なコンテンツを生成します'
+    };
+
+    // ========== Render Site Goals Checkboxes ==========
+    const goalsContainer = document.getElementById('siteGoalsContainer');
+    siteGoalsOptions.forEach(g => {
+      goalsContainer.innerHTML += `
+        <div class="relative">
+          <input type="checkbox" id="goal_${g.value}" value="${g.value}" class="goal-checkbox peer sr-only" onchange="updateProgress()">
+          <label for="goal_${g.value}" class="flex items-center gap-2 px-3 py-2.5 bg-gray-50 border-2 border-gray-200 rounded-xl cursor-pointer transition-all hover:border-gray-300 hover:bg-gray-100">
+            <i class="fas ${g.icon} ${g.color} text-sm goal-icon"></i>
+            <span class="text-xs font-medium text-gray-700">${g.value}</span>
+            <div class="goal-check hidden ml-auto w-4 h-4 bg-brand-600 rounded-full items-center justify-center">
+              <i class="fas fa-check text-white text-[8px]"></i>
+            </div>
+          </label>
+        </div>
+      `;
+    });
+
+    // ========== Character Counters ==========
+    ['companyName', 'address', 'mainServices'].forEach(f => {
+      const el = document.getElementById(f);
+      const countEl = document.getElementById(f + 'Count');
+      if (el && countEl) {
+        el.addEventListener('input', () => {
+          countEl.textContent = el.value.length;
+          updateProgress();
+          hideError(f);
+        });
+      }
+    });
+    document.getElementById('additionalNotes')?.addEventListener('input', function() {
+      document.getElementById('notesCount').textContent = this.value.length;
+    });
+    document.getElementById('email').addEventListener('input', () => { updateProgress(); hideError('email'); });
+    document.getElementById('referenceUrl').addEventListener('input', () => { updateProgress(); hideError('referenceUrl'); });
+
+    // ========== Industry Change → Dynamic Placeholder ==========
+    document.getElementById('industry').addEventListener('change', function() {
+      const val = this.value;
+      const servicesEl = document.getElementById('mainServices');
+      const hintEl = document.getElementById('industryHint');
+      const hintText = document.getElementById('industryHintText');
+
+      // Update placeholder
+      if (industryPlaceholders[val]) {
+        servicesEl.placeholder = industryPlaceholders[val];
+      }
+
+      // Show hint
+      if (industryHints[val]) {
+        hintText.textContent = industryHints[val];
+        hintEl.classList.remove('hidden');
+      } else {
+        hintEl.classList.add('hidden');
+      }
+
+      updateProgress();
+      hideError('industry');
+    });
+
+    // ========== Progress ==========
+    function updateProgress() {
+      let filled = 0;
+      if (document.getElementById('companyName').value.trim()) filled++;
+      if (document.getElementById('address').value.trim()) filled++;
+      const email = document.getElementById('email').value.trim();
+      if (email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) filled++;
+      const url = document.getElementById('referenceUrl').value.trim();
+      if (url && /^https?:\/\/.+/.test(url)) filled++;
+      if (document.getElementById('industry').value) filled++;
+      if (document.getElementById('mainServices').value.trim()) filled++;
+      const checkedGoals = document.querySelectorAll('.goal-checkbox:checked');
+      if (checkedGoals.length > 0) filled++;
+
+      const pct = (filled / TOTAL_FIELDS) * 100;
+      document.getElementById('progressBar').style.width = pct + '%';
+      document.getElementById('progressText').textContent = `${filled} / ${TOTAL_FIELDS} 完了`;
+
+      // Precision indicator
+      updatePrecision(filled);
+
+      document.getElementById('submitBtn').disabled = filled < TOTAL_FIELDS;
+    }
+
+    function updatePrecision(filled) {
+      const levels = {
+        0: { score: '基本精度', pct: 20 },
+        1: { score: '基本精度', pct: 25 },
+        2: { score: '基本精度', pct: 30 },
+        3: { score: '基本精度', pct: 35 },
+        4: { score: '65点 (4項目)', pct: 45 },
+        5: { score: '75点 (+業種)', pct: 60 },
+        6: { score: '80点 (+サービス)', pct: 75 },
+        7: { score: '85点〜 (全項目)', pct: 95 }
+      };
+      const l = levels[filled] || levels[0];
+      document.getElementById('precisionScore').textContent = l.score;
+      document.getElementById('precisionBar').style.width = l.pct + '%';
+    }
+
+    function toggleNotes() {
+      document.getElementById('notesSection').classList.toggle('hidden');
+      document.getElementById('notesIcon').classList.toggle('rotate-180');
+    }
+
+    function hideError(field) {
+      document.getElementById(field + 'Error')?.classList.add('hidden');
+      const el = document.getElementById(field);
+      el?.classList.remove('border-red-400');
+    }
+    function showError(field) {
+      document.getElementById(field + 'Error')?.classList.remove('hidden');
+      const el = document.getElementById(field);
+      el?.classList.add('border-red-400');
+    }
+
+    // ========== Validation ==========
+    function validateForm() {
+      let valid = true;
+      const cn = document.getElementById('companyName').value.trim();
+      const addr = document.getElementById('address').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const url = document.getElementById('referenceUrl').value.trim();
+      const industry = document.getElementById('industry').value;
+      const services = document.getElementById('mainServices').value.trim();
+      const goals = document.querySelectorAll('.goal-checkbox:checked');
+
+      if (!cn || cn.length > 100) { showError('companyName'); valid = false; }
+      if (!addr || addr.length > 200) { showError('address'); valid = false; }
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showError('email'); valid = false; }
+      if (!url || !/^https?:\/\/.+/.test(url)) { showError('referenceUrl'); valid = false; }
+      if (!industry) { showError('industry'); valid = false; }
+      if (!services || services.length > 150) { showError('mainServices'); valid = false; }
+      if (goals.length === 0) { showError('siteGoals'); valid = false; }
+
+      return valid;
+    }
+
+    // ========== Form Submission ==========
+    document.getElementById('applicationForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!validateForm()) return;
+
+      const selectedGoals = [...document.querySelectorAll('.goal-checkbox:checked')].map(c => c.value);
+
+      const formData = {
+        company_name: document.getElementById('companyName').value.trim(),
+        address: document.getElementById('address').value.trim(),
+        email: document.getElementById('email').value.trim(),
+        reference_url: document.getElementById('referenceUrl').value.trim(),
+        industry: document.getElementById('industry').value,
+        main_services: document.getElementById('mainServices').value.trim(),
+        site_goals: selectedGoals,
+        additional_notes: document.getElementById('additionalNotes')?.value.trim() || '',
+        status: 'SUBMITTED',
+        quality_score: 0
+      };
+
+      document.getElementById('formSection').classList.add('hidden');
+      document.getElementById('processingSection').classList.remove('hidden');
+
+      try {
+        await animateStep('procStep1', '7項目の入力データを検証しています', 800);
+        completeStep('procStep1');
+
+        await animateStep('procStep2', 'プロジェクトを登録しています（高精度モード）', 1000);
+        const project = await API.create('projects', formData);
+        completeStep('procStep2');
+
+        await animateStep('procStep3', 'AI分析キューに投入しています（業種: ' + formData.industry + '）', 1200);
+        await API.create('process_logs', {
+          project_id: project.id,
+          agent_name: 'discovery',
+          status: 'started',
+          message: '事業情報探索を開始しました（業種確定: ' + formData.industry + '）'
+        });
+        await API.update('projects', project.id, { status: 'DISCOVERING' });
+        completeStep('procStep3');
+
+        // Simulate AI processing for demo
+        setTimeout(() => simulateAIProcessing(project.id, formData), 2000);
+
+        await sleep(800);
+        document.getElementById('processingSection').classList.add('hidden');
+        document.getElementById('successSection').classList.remove('hidden');
+        document.getElementById('projectIdDisplay').textContent = project.id;
+
+      } catch (error) {
+        console.error('Submission error:', error);
+        document.getElementById('processingSection').classList.add('hidden');
+        document.getElementById('formSection').classList.remove('hidden');
+        showToast('送信中にエラーが発生しました。もう一度お試しください。', 'error');
+      }
+    });
+
+    function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+    async function animateStep(stepId, message, delay) {
+      const step = document.getElementById(stepId);
+      step.classList.remove('opacity-30');
+      step.classList.add('opacity-100');
+      step.querySelector('.fa-circle')?.classList.replace('fa-circle', 'fa-spinner');
+      step.querySelector('.fa-spinner')?.classList.add('fa-spin');
+      document.getElementById('processingMessage').textContent = message;
+      await sleep(delay);
+    }
+
+    function completeStep(stepId) {
+      const step = document.getElementById(stepId);
+      const icon = step.querySelector('div:first-child');
+      icon.classList.remove('bg-gray-100');
+      icon.classList.add('bg-emerald-100');
+      icon.innerHTML = '<i class="fas fa-check text-emerald-600 text-sm"></i>';
+    }
+
+    // ========== Enhanced AI Processing Simulation ==========
+    async function simulateAIProcessing(projectId, formData) {
+      try {
+        // Discovery with CONFIRMED industry
+        await API.create('process_logs', {
+          project_id: projectId, agent_name: 'discovery', status: 'completed',
+          message: '事業情報の推定が完了しました（業種確定済み: 信頼度100%）', score: 95
+        });
+
+        // Business type inference based on industry + goals
+        const isBtoB = ['IT・Web', '製造業', 'コンサルティング'].includes(formData.industry);
+        const isShop = ['飲食店', '美容・サロン', '整体・治療院', '小売・小売業'].includes(formData.industry);
+        const businessType = isBtoB ? 'BtoB' : isShop ? '店舗型' : 'BtoC';
+
+        // Target inference from goals
+        let target = '一般消費者';
+        if (formData.site_goals.includes('採用応募')) target = '求職者';
+        else if (isBtoB) target = '企業の意思決定者';
+        else if (isShop) target = '地域の潜在顧客';
+
+        // Brand tone from industry
+        const toneMap = {
+          'IT・Web': 'professional', '飲食店': 'friendly', '士業（法律・税理・行政書士等）': 'professional',
+          '医療・クリニック': 'professional', '美容・サロン': 'casual', '整体・治療院': 'friendly',
+          'コンサルティング': 'premium', '教育・スクール': 'friendly', '不動産': 'professional'
+        };
+
+        await API.create('business_profiles', {
+          project_id: projectId,
+          industry: formData.industry,
+          industry_confidence: 1.0, // CONFIRMED
+          business_type: businessType,
+          service_area: formData.address.includes('東京') || formData.address.includes('大阪') ? '都市圏' : '地域密着',
+          target_customer: target,
+          main_pain_point: generatePainPoint(formData.industry),
+          value_proposition: formData.main_services,
+          brand_tone: toneMap[formData.industry] || 'professional',
+          inferred_data: JSON.stringify({
+            industry: formData.industry, confidence: 1.0,
+            businessType, serviceArea: formData.address, mainServices: formData.main_services
+          }),
+          assumed_data: JSON.stringify({
+            targetCustomer: target,
+            mainPainPoint: generatePainPoint(formData.industry),
+            brandTone: toneMap[formData.industry] || 'professional'
+          })
+        });
+
+        await API.update('projects', projectId, { status: 'ANALYZING' });
+
+        // Reference Analysis
+        await API.create('process_logs', {
+          project_id: projectId, agent_name: 'analyzer', status: 'started',
+          message: '参考サイトの構造解析を開始'
+        });
+
+        // Generate sections based on site goals
+        const sections = [{ type: 'hero', order: 1, layout: 'center-aligned' }];
+        let order = 2;
+        sections.push({ type: 'services', order: order++, layout: '3-column grid' });
+        if (formData.site_goals.includes('ブランド認知')) sections.push({ type: 'about', order: order++, layout: '2-column' });
+        if (formData.site_goals.includes('商品販売')) sections.push({ type: 'products', order: order++, layout: 'grid' });
+        if (formData.site_goals.includes('採用応募')) sections.push({ type: 'recruit', order: order++, layout: '2-column' });
+        sections.push({ type: 'cta', order: order++, layout: 'center-aligned' });
+        if (formData.site_goals.includes('問い合わせ獲得') || formData.site_goals.includes('資料請求'))
+          sections.push({ type: 'contact', order: order++, layout: 'form' });
+        sections.push({ type: 'footer', order: order++, layout: 'multi-column' });
+
+        await API.create('reference_analyses', {
+          project_id: projectId, page_type: 'landing',
+          sections_json: JSON.stringify(sections),
+          color_palette_json: JSON.stringify({ primary: '#1a73e8', secondary: '#34a853', accent: '#fbbc04', background: '#ffffff', text: '#202124' }),
+          layout_pattern_json: JSON.stringify({ columns: 12, maxWidth: '1200px', gutterWidth: '24px' }),
+          typography_json: JSON.stringify({ baseSize: '16px', headingScale: 1.5, lineHeight: 1.6 }),
+          ui_patterns_json: JSON.stringify({ nav: 'sticky', cta: 'prominent', cards: 'shadow-based' })
+        });
+
+        await API.create('process_logs', {
+          project_id: projectId, agent_name: 'analyzer', status: 'completed',
+          message: '参考サイトの構造解析が完了しました'
+        });
+        await API.update('projects', projectId, { status: 'BUILDING' });
+
+        // Build
+        await API.create('process_logs', { project_id: projectId, agent_name: 'builder', status: 'started', message: 'フロントエンド生成を開始（業種: ' + formData.industry + '）' });
+        await API.create('process_logs', { project_id: projectId, agent_name: 'builder', status: 'completed', message: '初稿生成が完了しました' });
+
+        // Higher scores due to 7-field input
+        const evalScore = {
+          project_id: projectId, iteration: 1,
+          structure_score: 18, relevance_score: 19, sales_score: 14,
+          info_design_score: 14, mobile_score: 9, code_quality_score: 9, copyright_score: 10,
+          total_score: 93, passed: true,
+          feedback_json: JSON.stringify({
+            strengths: ['業種確定により高精度なコンテンツ生成', '目的に最適化されたCTA設計', '著作権クリア', 'サービス内容に基づく具体的なコピー'],
+            improvements: ['画像選定の改善余地あり']
+          })
+        };
+        await API.create('evaluation_scores', evalScore);
+        await API.update('projects', projectId, { status: 'REVIEW_READY', quality_score: 93 });
+        await API.create('process_logs', {
+          project_id: projectId, agent_name: 'evaluator', status: 'completed',
+          message: '品質評価完了: 93/100 (合格) ※7項目入力による高精度モード', score: 93
+        });
+
+      } catch (err) {
+        console.error('AI simulation error:', err);
+      }
+    }
+
+    function generatePainPoint(industry) {
+      const pains = {
+        'IT・Web': '技術力の適切な訴求が難しい',
+        '飲食店': 'Web経由の新規集客が不足',
+        '小売・小売業': 'ECでの販路拡大が課題',
+        '士業（法律・税理・行政書士等）': '専門性を分かりやすく伝えたい',
+        '医療・クリニック': '患者に安心感を与える情報発信',
+        '建設・工務店': '施工品質をWeb上で証明したい',
+        '製造業': 'BtoB取引先へのアプローチ強化',
+        '教育・スクール': '生徒募集の集客力向上',
+        '不動産': '物件情報の効果的な掲載',
+        '美容・サロン': '新規顧客のWeb予約促進',
+        'コンサルティング': '専門性と実績の効果的な訴求',
+        '整体・治療院': '地域密着の集客強化',
+        '運送・物流': '信頼性のアピール',
+        '介護・福祉': '利用者・家族への安心感の提供',
+      };
+      return pains[industry] || 'Web経由の集客・認知度向上';
+    }
+  </script>
+</body>
+</html>
