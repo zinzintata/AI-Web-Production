@@ -108,7 +108,7 @@
   <!-- ===== Urgency Top Bar ===== -->
   <div class="bg-red-600 text-white text-center py-2 px-4 text-sm font-bold urgency-bar">
     <i class="fas fa-fire mr-1"></i>
-    <span id="urgencyText">【限定】先着 <span class="text-yellow-300 text-base">20社</span> 初稿完全無料キャンペーン実施中（残り <span id="remainSlots" class="text-yellow-300 text-base">7</span> 枠）</span>
+    <span id="urgencyText">【期間限定】先着 <span class="text-yellow-300 text-base">20社</span> 初稿完全無料キャンペーン実施中（残り <span id="remainSlots" class="text-yellow-300 text-base">7</span> 枠）</span>
   </div>
 
   <!-- ===== Fixed Navigation ===== -->
@@ -760,7 +760,7 @@
       <!-- Urgency -->
       <div class="inline-flex items-center gap-2 bg-red-500/20 border border-red-400/30 rounded-full px-5 py-2 mb-6 urgency-bar">
         <i class="fas fa-fire text-red-400"></i>
-        <span class="text-red-300 text-sm font-bold">4月限定キャンペーン：残り <span class="text-yellow-300 text-lg font-black" id="remainSlots2">7</span> 枠</span>
+        <span class="text-red-300 text-sm font-bold">期間限定キャンペーン：残り <span class="text-yellow-300 text-lg font-black" id="remainSlots2">7</span> 枠</span>
       </div>
       
       <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black leading-tight mb-4 fade-in">
@@ -846,7 +846,7 @@
       const month = today.getMonth() + 1;
       const urgText = document.getElementById('urgencyText');
       if (urgText) {
-        urgText.innerHTML = `【${month}月限定】先着 <span class="text-yellow-300 text-base">20社</span> 初稿完全無料キャンペーン実施中（残り <span id="remainSlots" class="text-yellow-300 text-base">${slots}</span> 枠）`;
+        urgText.innerHTML = `【期間限定】先着 <span class="text-yellow-300 text-base">20社</span> 初稿完全無料キャンペーン実施中（残り <span id="remainSlots" class="text-yellow-300 text-base">${slots}</span> 枠）`;
       }
     })();
 
